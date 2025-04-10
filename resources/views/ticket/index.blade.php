@@ -14,6 +14,8 @@
     />
     <!-- Place favicon.ico in the root directory -->
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- CSS here -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
@@ -118,7 +120,7 @@
                 </button>
               </div>
               <div class="search__form">
-                <form action="#">
+                {{-- <form action="#"> --}}
                   <div class="search__input">
                     <input
                       class="search-input-field"
@@ -151,7 +153,7 @@
                       </svg>
                     </button>
                   </div>
-                </form>
+                {{-- </form> --}}
               </div>
             </div>
           </div>
@@ -415,7 +417,8 @@
 <div class="container d-flex justify-content-center mt-3">
   <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
     <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
-    <form id="contact-form" action="assets/mail.php" method="POST">
+    <form id="contact-form" action="{{ route('buy-ticket') }}" method="POST">
+      @csrf
       <div class="row mb-3">
         <div class="col">
           <input type="text" class="form-control form-input" name="firstName" placeholder="First Name" required>
@@ -434,8 +437,10 @@
         <input type="text" class="form-control form-input" name="school" placeholder="School" required>
       </div>
       <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
-      <p class="ajax-response pt-3 text-center text-muted"></p>
+      {{-- <p class="ajax-response pt-3 text-center text-muted"></p> --}}
     </form>
+    
+    <div id="response-message" class="alert mt-3 text-center" style="display: none;"></div>
   </div>
 </div>
 <!-- td-contact-form-area-end -->
@@ -585,6 +590,66 @@
       const year = new Date().getFullYear();
       // Insert the year into the span with id "current-year"
       document.getElementById("current-year").textContent = year;
+    </script>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contact-form');
+        const responseMessage = document.getElementById('response-message');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Show loading state
+          const submitButton = form.querySelector('button[type="submit"]');
+          const originalButtonText = submitButton.innerHTML;
+          submitButton.innerHTML = 'Processing...';
+          submitButton.disabled = true;
+          
+          // Get form data
+          const formData = new FormData(form);
+          
+          // Send AJAX request
+          fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            // Reset button
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+            
+            // Show response message
+            responseMessage.style.display = 'block';
+            responseMessage.className = 'alert mt-3 text-center';
+            
+            if (data.status === 'success') {
+              responseMessage.classList.add('alert-success');
+              responseMessage.textContent = data.message;
+              form.reset();
+            } else {
+              responseMessage.classList.add('alert-danger');
+              responseMessage.textContent = data.message || 'An error occurred. Please try again.';
+            }
+          })
+          .catch(error => {
+            // Reset button
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+            
+            // Show error message
+            responseMessage.style.display = 'block';
+            responseMessage.className = 'alert alert-danger mt-3 text-center';
+            responseMessage.textContent = 'An error occurred. Please try again.';
+            console.error('Error:', error);
+          });
+        });
+      });
     </script>
   </body>
 </html>

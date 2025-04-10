@@ -8,3 +8,6 @@ Route::get('/', function () {
 });
 Route::get('/buy/ticket', [Homecontroller::class, 'Index'])->name('ticket');
 Route::get('/home/contact', [Homecontroller::class, 'Contact'])->name('contact');
+
+Route::post('/buy-ticket', [Homecontroller::class, 'Ticket'])->name('buy-ticket');
+
