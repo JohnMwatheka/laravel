@@ -413,7 +413,7 @@
 
       
       
-      <!-- td-contact-form-area-start -->
+    <!-- td-contact-form-area-start -->
 <div class="container d-flex justify-content-center mt-3">
   <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
     <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
@@ -436,16 +436,32 @@
       <div class="mb-3">
         <input type="text" class="form-control form-input" name="school" placeholder="School" required>
       </div>
+      <div class="mb-3 position-relative">
+        <select class="form-control form-input" name="ticket_quantity" required>
+          <option value="" disabled selected>Select Number of Tickets</option>
+          @for ($i = 1; $i <= 10; $i++)
+            <option value="{{ $i }}">{{ $i }}</option>
+          @endfor
+        </select>
+        <span class="position-absolute" style="top: 50%; right: 45px; transform: translateY(-50%); pointer-events: none; font-size: 2.4rem;">
+          &#9662;
+        </span>
+      </div>
+
+      <!-- Hidden Inputs -->
+      <input type="hidden" name="ticket_amount" value="500">
+      <input type="hidden" name="event_id" value="1">
+
       <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
-      {{-- <p class="ajax-response pt-3 text-center text-muted"></p> --}}
     </form>
-    
+
     <div id="response-message" class="alert mt-3 text-center" style="display: none;"></div>
   </div>
 </div>
 <!-- td-contact-form-area-end -->
 
 
+   
 
       
       

@@ -23,19 +23,26 @@ class Homecontroller extends Controller
 
     public function Ticket(Request $request)
     {
-        // Validate the request
+        // Validate the request including the new fields
         $validated = $request->validate([
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'school' => 'required|string|max:255',
+            'ticket_amount' => 'required|numeric|min:1',
+            'ticket_quantity' => 'required|integer|min:1',
+            'event_id' => 'required|integer', //Added static event id
         ]);
+
+        // Calculate total amount
+        $totalAmount = $validated['ticket_amount'] * $validated['ticket_quantity'];
 
         // Here you would typically save the ticket information to your database
         // For now, we'll just return a JSON response
 
-        $this->processStkPush($validated['phone'], 100, '1234567890');
+        // Process the STK Push
+        $this->processStkPush($validated['phone'], $totalAmount, '1234567890');
 
         return response()->json([
             'status' => 'success',
@@ -43,6 +50,7 @@ class Homecontroller extends Controller
             'data' => $validated
         ]);
     }
+
 
 
     public function processStkPush($phone, $amount, $reference)
