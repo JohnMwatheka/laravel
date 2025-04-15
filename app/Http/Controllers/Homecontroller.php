@@ -5,38 +5,58 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Traits\C2BSetup;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\Event;
 
 class Homecontroller extends Controller
 {
     use C2BSetup;
 
     //
-    public function Index()
+
+    public function home()
     {
-        return view('ticket.index');
+        // Get all events (if needed in future) and the event with id = 1
+        $events = Event::all();
+        $highlightedEvent = Event::find(1); // or use firstWhere('id', 1);
+
+        return view('welcome', compact('events', 'highlightedEvent'));
     }
+    public function Index(Event $event)
+    {
+        $highlightedEvent = Event::find(1);
+        $amount = $event->tickets['early_bird'] ?? 0; // Fetch ticket amount
+        return view('ticket.index', compact('event', 'amount', 'highlightedEvent'));
+    }
+
 
     public function Contact()
     {
-        return view('contact');
+        $highlightedEvent = Event::find(1);
+        return view('contact', compact('highlightedEvent'));
     }
 
     public function Ticket(Request $request)
     {
-        // Validate the request
+        // Validate the request including the new fields
         $validated = $request->validate([
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'school' => 'required|string|max:255',
+            'ticket_amount' => 'required|numeric|min:1',
+            'ticket_quantity' => 'required|integer|min:1',
+            'event_id' => 'required|integer', //Added static event id
         ]);
+
+        // Calculate total amount
+        $totalAmount = $validated['ticket_amount'] * $validated['ticket_quantity'];
 
         // Here you would typically save the ticket information to your database
         // For now, we'll just return a JSON response
 
-        $this->processStkPush($validated['phone'], 100, '1234567890');
+        // Process the STK Push
+        $this->processStkPush($validated['phone'], $totalAmount, '1234567890');
 
         return response()->json([
             'status' => 'success',
@@ -44,6 +64,7 @@ class Homecontroller extends Controller
             'data' => $validated
         ]);
     }
+
 
 
     public function processStkPush($phone, $amount, $reference)
@@ -93,5 +114,50 @@ class Homecontroller extends Controller
         } catch (\Exception $exception) {
             return $exception->getMessage();
         }
+    }
+    //Method to return to event page
+
+    public function CreateEvent(Request $request)
+    {
+        // return to event page
+        $highlightedEvent = Event::find(1);
+        return view('events.create-event', compact('highlightedEvent'));
+    }
+    //Method to create event
+    // Method to create event
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'venue' => 'required|string|max:255',
+            'date' => 'required|date',
+            'early_bird' => 'required|numeric',
+            'advance' => 'required|numeric',
+            'gate' => 'required|numeric',
+            'event_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'intro_video' => 'nullable|url'
+        ]);
+
+        // Handle image upload manually to public/uploads/events
+        $imagePath = null;
+        if ($request->hasFile('event_image')) {
+            $image = $request->file('event_image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/events'), $imageName);
+            $imagePath = 'uploads/events/' . $imageName; // relative path to use in HTML
+        }
+
+        Event::create([
+            'venue' => $validated['venue'],
+            'date' => $validated['date'],
+            'tickets' => [
+                'early_bird' => $validated['early_bird'],
+                'advance' => $validated['advance'],
+                'gate' => $validated['gate'],
+            ],
+            'event_image' => $imagePath,
+            'intro_video' => $validated['intro_video'] ?? null,
+        ]);
+
+        return back()->with('success', 'Event created successfully!');
     }
 }
