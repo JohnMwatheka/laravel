@@ -1995,7 +1995,7 @@
                     data-wow-delay="0.3s"
                   >
                     <span class="td-section-subtitle td-section-subtitle-2 mb-30"
-                      >Tickets Packages</span
+                      >Get your tickets today!</span
                     >
                     <h2 class="mb-10 td-section-title">
                       Explore flexible pricing plans
