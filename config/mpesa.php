@@ -48,8 +48,8 @@ return [
     |
     */
 
-    'b2c_consumer_key' => "XiuQdo0i6Ek2mbY9QM8NtFEuLAHfR5eg",
-    'b2c_consumer_secret' => "FyVstjztvcQjXkC7",
+    'b2c_consumer_key' => "ILLw41fn0kxjWOFfbA4iYnCrGtvfvDP5MnyR4tNW1EymdGhA",
+    'b2c_consumer_secret' => "ChOUl0IDlQ7ovpKwVQVfKEl2vWZOS4lnnZ1GgpLtEu9PEP3nmvTZpFfqTWAD46nu",
 
     /*
     |--------------------------------------------------------------------------

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Traits\C2BSetup;
+use Illuminate\Support\Facades\Log;
 
 
 class Homecontroller extends Controller
@@ -53,7 +54,7 @@ class Homecontroller extends Controller
 
             $phone = '254' . substr($phone, -9);
             // $paybill = env('MPESA_SHORT_CODE');
-            $paybill =  "4048581";
+            $paybill =  "4083001";
             $callBackURL = 'https://pay.m-tip.app/api/v1/c2b-stk-callback';
 
             $transactionType = "CustomerPayBillOnline";
@@ -63,10 +64,14 @@ class Homecontroller extends Controller
             $stkPushSimulation = $this->stkPush($paybill, $transactionType, $amount, $phone, $paybill, $phone, $callBackURL, $accountReference, null, null, $token);
 
             $response = json_decode($stkPushSimulation, true);
+
+            Log::info($response);
+
             // Log::create([
             //     'source' => 'Stk Callback res',
             //     'content' => json_encode($response),
             // ]);
+
             $status = 'success';
             $message = 'Success. Request accepted for processing';
             if (empty($response['CheckoutRequestID'])) {
