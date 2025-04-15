@@ -4,21 +4,35 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Traits\C2BSetup;
-
+Use App\Models\Event;
 
 class Homecontroller extends Controller
 {
     use C2BSetup;
 
     //
-    public function Index()
+
+    public function home()
     {
-        return view('ticket.index');
+        // Get all events (if needed in future) and the event with id = 1
+        $events = Event::all();
+        $highlightedEvent = Event::find(1); // or use firstWhere('id', 1);
+
+        return view('welcome', compact('events', 'highlightedEvent'));
     }
+    public function Index(Event $event)
+{
+    $highlightedEvent = Event::find(1);
+    $amount = $event->tickets['early_bird'] ?? 0; // Fetch ticket amount
+    return view('ticket.index', compact('event', 'amount', 'highlightedEvent'));
+    
+}
+
 
     public function Contact()
     {
-        return view('contact');
+        $highlightedEvent = Event::find(1);
+        return view('contact', compact('highlightedEvent'));
     }
 
     public function Ticket(Request $request)
@@ -97,4 +111,51 @@ class Homecontroller extends Controller
             return $exception->getMessage();
         }
     }
+    //Method to return to event page
+
+    public function CreateEvent(Request $request)
+    {
+        // return to event page
+        $highlightedEvent = Event::find(1);
+        return view('events.create-event', compact('highlightedEvent'));
+    }
+    //Method to create event
+    // Method to create event
+    public function store(Request $request)
+        {
+            $validated = $request->validate([
+                'venue' => 'required|string|max:255',
+                'date' => 'required|date',
+                'early_bird' => 'required|numeric',
+                'advance' => 'required|numeric',
+                'gate' => 'required|numeric',
+                'event_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'intro_video' => 'nullable|url'
+            ]);
+
+            // Handle image upload manually to public/uploads/events
+            $imagePath = null;
+            if ($request->hasFile('event_image')) {
+                $image = $request->file('event_image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/events'), $imageName);
+                $imagePath = 'uploads/events/' . $imageName; // relative path to use in HTML
+            }
+
+            Event::create([
+                'venue' => $validated['venue'],
+                'date' => $validated['date'],
+                'tickets' => [
+                    'early_bird' => $validated['early_bird'],
+                    'advance' => $validated['advance'],
+                    'gate' => $validated['gate'],
+                ],
+                'event_image' => $imagePath,
+                'intro_video' => $validated['intro_video'] ?? null,
+            ]);
+
+            return back()->with('success', 'Event created successfully!');
+        }
+
+
 }

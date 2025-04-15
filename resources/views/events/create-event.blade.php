@@ -413,52 +413,69 @@
 
       
       
- <!-- td-contact-form-area-start -->
-<div class="container d-flex justify-content-center mt-3">
-  <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
-    <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
-    <form id="contact-form" action="{{ route('buy-ticket') }}" method="POST">
-      @csrf
-      <div class="row mb-3">
-        <div class="col">
-          <input type="text" class="form-control form-input" name="firstName" placeholder="First Name" required pattern="^[A-Za-z]+$" title="Please enter a valid first name (letters only).">
-        </div>
-        <div class="col">
-          <input type="text" class="form-control form-input" name="lastName" placeholder="Last Name" required pattern="^[A-Za-z]+$" title="Please enter a valid last name (letters only).">
-        </div>
-      </div>
-      <div class="mb-3">
-        <input type="text" class="form-control form-input" name="phone" placeholder="Phone Number" required pattern="^(\+2547\d{8}|07\d{8})$" title="Please enter a valid phone number starting with +2547 or 07 followed by 8 digits.">
-      </div>
-      <div class="mb-3">
-        <input type="email" class="form-control form-input" name="email" placeholder="Email" required pattern="^[^@\s]+@[^@\s]+\.(com|org|net|edu|gov|co|io|info)$" title="Please enter a valid email address with a recognized domain.">
-      </div>
-      <div class="mb-3">
-        <input type="text" class="form-control form-input" name="school" placeholder="School" required title="Please enter your school name.">
-      </div>
-      <div class="mb-3 position-relative">
-        <select class="form-control form-input" name="ticket_quantity" required title="Please select the number of tickets.">
-          <option value="" disabled selected>Select Number of Tickets</option>
-          @for ($i = 1; $i <= 10; $i++)
-            <option value="{{ $i }}">{{ $i }}</option>
-          @endfor
-        </select>
-        <span class="position-absolute" style="top: 50%; right: 45px; transform: translateY(-50%); pointer-events: none; font-size: 2.4rem;">
-          &#9662;
-        </span>
-      </div>
-      <!-- Hidden Inputs -->
-      <input type="hidden" name="ticket_amount" value="{{ $amount }}">
-      <input type="hidden" name="event_id" value="{{ $event->id }}">
+   <!-- event-create-form-area-start -->
+    <!-- event-create-form-area-start -->
+    <div class="container d-flex justify-content-center mt-3">
+        <div class="contact-form-container col-lg-10 col-xl-8 col-sm-12">
+            <h3 class="text-center mb-4 text-secondary">Create Event</h3>
+            <form id="event-form" action="{{ route('events.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row">
+                    <div class="mb-3 col-md-6">
+                        <input type="text" class="form-control form-input" name="venue" placeholder="Venue" required>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <input type="date" class="form-control form-input" name="date" required>
+                    </div>
+                </div>
 
-      <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
-    </form>
+                <div class="row">
+                    <div class="mb-3 col-md-4">
+                        <input type="number" class="form-control form-input" name="early_bird" placeholder="Early Bird Ticket Price" required>
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <input type="number" class="form-control form-input" name="advance" placeholder="Advance Ticket Price" required>
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <input type="number" class="form-control form-input" name="gate" placeholder="Gate Ticket Price" required>
+                    </div>
+                </div>
 
-    <div id="response-message" class="alert mt-3 text-center" style="display: none;"></div>
-  </div>
-</div>
-<!-- td-contact-form-area-end -->
-     
+                <div class="row align-items-start mb-3">
+                    <div class="col-md-6">
+                        <input type="file" class="form-control form-input" name="event_image" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                    <div class="col-md-6">
+                        <img id="imagePreview" src="#" alt="Image Preview"
+                            style="max-width: 100px; max-height: 100px; display: none; border: 5px solid rgb(228, 105, 126); border-radius: 50%;" />
+                    </div>
+                </div>
+
+                <div class="row align-items-start mb-3">
+                    <div class="col-md-6">
+                        <input type="url" class="form-control form-input" name="intro_video" placeholder="Intro Video URL (optional)" oninput="previewVideo(this.value)">
+                    </div>
+                    <div class="col-md-6">
+                        <iframe id="videoPreview" width="100%" height="200" style="display: none;" frameborder="0" allowfullscreen></iframe>
+                        <p id="videoFallback" class="text-muted" style="display: none;">Preview not available. The link will still be submitted.</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="form-btn btn-sm col-12">Create Event</button>
+            </form>
+
+            @if (session('success'))
+                <div class="alert alert-success mt-3 text-center">{{ session('success') }}</div>
+            @endif
+        </div>
+    </div>
+    <!-- event-create-form-area-end -->
+  
+
+
+   
+
+      
       
     </main>
     <!-- main-area-end -->
@@ -607,25 +624,19 @@
       document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('contact-form');
         const responseMessage = document.getElementById('response-message');
-    
+        
         form.addEventListener('submit', function(e) {
           e.preventDefault();
-    
-          // Validate form fields
-          if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-          }
-    
+          
           // Show loading state
           const submitButton = form.querySelector('button[type="submit"]');
           const originalButtonText = submitButton.innerHTML;
           submitButton.innerHTML = 'Processing...';
           submitButton.disabled = true;
-    
+          
           // Get form data
           const formData = new FormData(form);
-    
+          
           // Send AJAX request
           fetch(form.action, {
             method: 'POST',
@@ -640,11 +651,11 @@
             // Reset button
             submitButton.innerHTML = originalButtonText;
             submitButton.disabled = false;
-    
+            
             // Show response message
             responseMessage.style.display = 'block';
             responseMessage.className = 'alert mt-3 text-center';
-    
+            
             if (data.status === 'success') {
               responseMessage.classList.add('alert-success');
               responseMessage.textContent = data.message;
@@ -658,7 +669,7 @@
             // Reset button
             submitButton.innerHTML = originalButtonText;
             submitButton.disabled = false;
-    
+            
             // Show error message
             responseMessage.style.display = 'block';
             responseMessage.className = 'alert alert-danger mt-3 text-center';
@@ -668,6 +679,38 @@
         });
       });
     </script>
-    
+    <script>
+        function previewImage(event) {
+          const reader = new FileReader();
+          reader.onload = function () {
+            const output = document.getElementById('imagePreview');
+            output.src = reader.result;
+            output.style.display = 'block';
+          };
+          reader.readAsDataURL(event.target.files[0]);
+        }
+      
+        function previewVideo(url) {
+          const iframe = document.getElementById('videoPreview');
+          const fallback = document.getElementById('videoFallback');
+          iframe.style.display = 'none';
+          fallback.style.display = 'none';
+      
+          // Check for YouTube URL
+          if (url.includes("youtube.com") || url.includes("youtu.be")) {
+            let videoId = '';
+            if (url.includes("youtu.be/")) {
+              videoId = url.split("youtu.be/")[1];
+            } else if (url.includes("v=")) {
+              videoId = url.split("v=")[1].split("&")[0];
+            }
+            iframe.src = `https://www.youtube.com/embed/${videoId}`;
+            iframe.style.display = 'block';
+          } else if (url.trim() !== '') {
+            fallback.style.display = 'block';
+          }
+        }
+      </script>
+      
   </body>
 </html>

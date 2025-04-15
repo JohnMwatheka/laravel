@@ -232,17 +232,17 @@
                           <a href="/">Home</a>
                         </li>
                         <li class="menu-item-has-children">
-                          <a href="events.htmlb">Events</a>
+                          <a href="{{ route('create-event') }}">Events</a>
                         </li>
                         <li class="menu-item-has-children">
-                          <a href="team.htmlb">Speakers</a>
+                          <a href="#">Speakers</a>
                         </li>
 
                         <li class="active">
                           <a href="{{ route('contact') }}">Contact</a>
                         </li>
                         <li class="menu-item-has-children">
-                          <a href="{{ route('ticket') }}">Buy Tickect</a>
+                          <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
                         </li>
                       </ul>
                     </div>

@@ -201,7 +201,7 @@
                             <!-- <ul class="sub-menu">
                               <li><a href="team.html">Speakers</a></li>
                               <li>
-                                <a href="team-details.html">Speakers Details</a>
+                                <a href="#">Speakers Details</a>
                               </li>
                             </ul> -->
                           </li>
@@ -223,7 +223,7 @@
                             <a href="{{ route('contact') }}">Contact</a>
                           </li>
                           <li class="menu-item-has-children">
-                            <a href="{{ route('ticket') }}">Buy Tickect</a>
+                            <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
                           </li>
                         </ul>
                       </div>
@@ -344,9 +344,10 @@
           <div class="col-lg-12">
             <div class="td-hero-2-wrap p-relative">
               <div
-                class="td-hero-2-thumb bg-position"
-                data-background="assets/img/hero/hero-2/backg.jpg"
-              >
+                  class="td-hero-2-thumb bg-position"
+                  data-background="{{ $highlightedEvent && $highlightedEvent->event_image ? asset($highlightedEvent->event_image) : asset('assets/img/hero/hero-2/backg.jpg') }}"
+                >
+
                 <h2
                   class="td-hero-2-title wow td-animetion-left"
                   data-wow-duration="1.5s"
@@ -399,21 +400,22 @@
         <div class="row align-items-center d-flex">
           <div class="col-xl-3 col-lg-5 wow fadeInUp order-1" data-wow-duration=".9s" data-wow-delay=".2s">
             <div class="mb-40 td-countdown-2-title">
-              <h2 class="title">Kagaa Girls</h2>
-              <span class="subtitle">24th June, 2025</span>
+              <h2 class="title">{{ $highlightedEvent->venue ?? 'Upcoming Event' }}</h2>
+              <span class="subtitle">{{ \Carbon\Carbon::parse($highlightedEvent->date ?? now())->format('jS F, Y') }}</span>
             </div>
           </div>
     
           <div class="col-xl-5 col-lg-7 wow fadeInUp order-2" data-wow-duration=".9s" data-wow-delay=".4s">
             <div class="mb-20 td-hero-countdown td-countdown-2-wrap">
               <ul class="deal-counter ml0-md" id="timer">
-                <li class="mb-20 list-inline-item days"></li>
-                <li class="mb-20 list-inline-item hours"></li>
-                <li class="mb-20 list-inline-item minutes"></li>
-                <li class="mb-20 list-inline-item seconds"></li>
+                <li class="mb-20 list-inline-item days"><span>0</span><p class="fs-6">Days</p></li>
+                <li class="mb-20 list-inline-item hours"><span>0</span><p class="fs-6">Hrs</p></li>
+                <li class="mb-20 list-inline-item minutes"><span>0</span><p class="fs-6">Mins</p></li>
+                <li class="mb-20 list-inline-item seconds"><span>0</span><p class="fs-6">Secs</p></li>
               </ul>
             </div>
           </div>
+          
     
           <div class="col-xl-3 col-lg-5 wow fadeInUp order-3" data-wow-duration=".9s" data-wow-delay=".2s">
             <div class="mb-40 td-countdown-2-location-wrap text-end">
@@ -616,9 +618,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Devon Lane</a>
+                        <a href="#">Events</a>
                       </h2>
-                      <span class="td-team-2-position">Master of Ceremony</span>
+                      <span class="td-team-2-position">Events</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -692,9 +694,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Esther Howard</a>
+                        <a href="#">Dj Deweez</a>
                       </h2>
-                      <span class="td-team-2-position">Artist</span>
+                      <span class="td-team-2-position">Deejay</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -768,9 +770,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Cody Fisher</a>
+                        <a href="#">Event</a>
                       </h2>
-                      <span class="td-team-2-position">Deejay</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -844,9 +846,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Floyd Miles</a>
+                        <a href="#">Events</a>
                       </h2>
-                      <span class="td-team-2-position">Speaker</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -920,9 +922,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Jane Cooper</a>
+                        <a href="#">Events</a>
                       </h2>
-                      <span class="td-team-2-position">Deejay</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -996,9 +998,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Kristin Watson</a>
+                        <a href="#">Event</a>
                       </h2>
-                      <span class="td-team-2-position">Artist</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -1072,9 +1074,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Theresa Web</a>
+                        <a href="#">Event</a>
                       </h2>
-                      <span class="td-team-2-position">Deejay</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -1148,9 +1150,9 @@
                     </div>
                     <div class="td-team-2-content ml-30">
                       <h2 class="td-team-2-title">
-                        <a href="team-details.html">Wade Warren</a>
+                        <a href="#">Event</a>
                       </h2>
-                      <span class="td-team-2-position">Speaker</span>
+                      <span class="td-team-2-position">Event</span>
                     </div>
                     <div class="td-team-2-social">
                       <a href="https://www.facebook.com/p/The-Pace-setter-Mag-61550425191042/"
@@ -1190,13 +1192,13 @@
                   <div class="swiper-wrapper slide-transtion">
                     <div class="swiper-slide">
                       <div class="td-text-slider-item">
-                        <h3 class="text">Event Name</h3>
+                        <h3 class="text">Pace Teenz Festival</h3>
                         <img src="assets/img/text/round.png" alt="round" />
                       </div>
                     </div>
                     <div class="swiper-slide">
                       <div class="td-text-slider-item">
-                        <h3 class="text">Date of the event</h3>
+                        <h3 class="text">29th November, 2025</h3>
                         <img src="assets/img/text/round.png" alt="round" />
                       </div>
                     </div>
@@ -1454,69 +1456,70 @@
               </div>
               <div class="row gx-30">
                 <div
-                  class="col-xl-4 col-lg-6 col-md-6 mb-30 wow fadeInLeft"
-                  data-wow-duration="1.5s"
-                  data-wow-delay="0.3s"
-                >
-                  <div
-                    class="td-pricing-2-item bg-position"
-                    data-background="assets/img/pricing/bg.png"
-                  >
-                    <div class=" td-pricing-2-price mb-30">
-                      <span class="mb-5 subtitle">Early Bird</span>
-                      <span class="price">Ksh.500</span>
-                    </div>
-                    <div class="td-pricing-2-feature mb-35">
-                      <ul>
-                        <li>
-                          <span>
-                            <svg
-                              width="22"
-                              height="22"
-                              viewBox="0 0 22 22"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M20 10.1771V11.0051C19.9989 12.9459 19.3704 14.8344 18.2084 16.3888C17.0463 17.9432 15.413 19.0804 13.5518 19.6307C11.6907 20.1809 9.70153 20.1149 7.88102 19.4423C6.06051 18.7697 4.50619 17.5266 3.44986 15.8985C2.39354 14.2704 1.89181 12.3444 2.01951 10.4078C2.14721 8.47126 2.89749 6.62784 4.15845 5.15252C5.41942 3.67719 7.1235 2.649 9.01657 2.22128C10.9096 1.79357 12.8902 1.98925 14.663 2.77915M20 3.80515L11 12.8141L8.3 10.1141"
-                                stroke="currentColor"
-                                stroke-width="2.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <span class="">Open</span>
-                        </li>
-                        <li>
-                          <span>
-                            <svg
-                              width="22"
-                              height="22"
-                              viewBox="0 0 22 22"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M20 10.1771V11.0051C19.9989 12.9459 19.3704 14.8344 18.2084 16.3888C17.0463 17.9432 15.413 19.0804 13.5518 19.6307C11.6907 20.1809 9.70153 20.1149 7.88102 19.4423C6.06051 18.7697 4.50619 17.5266 3.44986 15.8985C2.39354 14.2704 1.89181 12.3444 2.01951 10.4078C2.14721 8.47126 2.89749 6.62784 4.15845 5.15252C5.41942 3.67719 7.1235 2.649 9.01657 2.22128C10.9096 1.79357 12.8902 1.98925 14.663 2.77915M20 3.80515L11 12.8141L8.3 10.1141"
-                                stroke="currentColor"
-                                stroke-width="2.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <span class="">Ends in July, 2025</span>
-                        </li>
-                        <li></li>
-                        <li></li>
-                      </ul>
-                    </div>
-                    <a class="td-btn-square" href="Ticket.html" title="Open Now"
-                      >Purchase Tickets</a
-                    >
-                  </div>
-                </div>
+  class="col-xl-4 col-lg-6 col-md-6 mb-30 wow fadeInLeft"
+  data-wow-duration="1.5s"
+  data-wow-delay="0.3s"
+>
+  <div
+    class="td-pricing-2-item bg-position"
+    data-background="assets/img/pricing/bg.png"
+  >
+    <div class="td-pricing-2-price mb-30">
+      <span class="mb-5 subtitle">Early Bird</span>
+      <span class="price">Ksh.{{ $highlightedEvent['tickets']['early_bird'] ?? 'N/A' }}</span>
+    </div>
+    <div class="td-pricing-2-feature mb-35">
+      <ul>
+        <li>
+          <span>
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+              d="M20 10.1771V11.0051C19.9989 12.9459 19.3704 14.8344 18.2084 16.3888C17.0463 17.9432 15.413 19.0804 13.5518 19.6307C11.6907 20.1809 9.70153 20.1149 7.88102 19.4423C6.06051 18.7697 4.50619 17.5266 3.44986 15.8985C2.39354 14.2704 1.89181 12.3444 2.01951 10.4078C2.14721 8.47126 2.89749 6.62784 4.15845 5.15252C5.41942 3.67719 7.1235 2.649 9.01657 2.22128C10.9096 1.79357 12.8902 1.98925 14.663 2.77915M20 3.80515L11 12.8141L8.3 10.1141"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          </span>
+          <span class="">Open</span>
+        </li>
+        <li>
+          <span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 22 22"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 10.1771V11.0051C19.9989 12.9459 19.3704 14.8344 18.2084 16.3888C17.0463 17.9432 15.413 19.0804 13.5518 19.6307C11.6907 20.1809 9.70153 20.1149 7.88102 19.4423C6.06051 18.7697 4.50619 17.5266 3.44986 15.8985C2.39354 14.2704 1.89181 12.3444 2.01951 10.4078C2.14721 8.47126 2.89749 6.62784 4.15845 5.15252C5.41942 3.67719 7.1235 2.649 9.01657 2.22128C10.9096 1.79357 12.8902 1.98925 14.663 2.77915M20 3.80515L11 12.8141L8.3 10.1141"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="">Ends in July, 2025</span>
+        </li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+    <a
+  class="td-btn-square"
+ href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}"
+
+  title="Open Now"
+>
+  Purchase Tickets
+</a>
+
+  </div>
+</div>
+
                 <div
                   class="col-xl-4 col-lg-6 col-md-6 mb-30 wow fadeInUp"
                   data-wow-duration="1.5s"
@@ -1528,7 +1531,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Advance</span>
-                      <span class="price">Ksh.800</span>
+                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['advance'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
@@ -1593,7 +1596,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Gate</span>
-                      <span class="price">Ksh.1,000</span>
+                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['gate'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
@@ -1809,7 +1812,7 @@
                 </div>
                 <div class="col-xl-7 col-lg-12">
                   <div class="td-location-2-map h-100 ml-90 pb-50">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d26799.59403538039!2d36.77643509741882!3d-1.3092035605674432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1skose%20heights!5e1!3m2!1sen!2ske!4v1743086954249!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d837.4941366940185!2d36.82246731212413!3d-1.2886165750774095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f11747e756f41%3A0x146973898c119b47!2sKenyatta%20International%20Convention%20Centre!5e1!3m2!1sen!2ske!4v1744734508621!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                   </div>
                 </div>
               </div>
@@ -1965,5 +1968,37 @@
           // Insert the year into the span with id "current-year"
           document.getElementById("current-year").textContent = year;
         </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const endDate = new Date("{{ \Carbon\Carbon::parse($highlightedEvent->date ?? now())->format('Y-m-d\TH:i:s') }}").getTime();
+
+    const daysEl = document.querySelector('.days span');
+    const hoursEl = document.querySelector('.hours span');
+    const minutesEl = document.querySelector('.minutes span');
+    const secondsEl = document.querySelector('.seconds span');
+
+    const timer = setInterval(function () {
+      const now = new Date().getTime();
+      const distance = endDate - now;
+
+      if (distance < 0) {
+        clearInterval(timer);
+        document.getElementById("timer").innerHTML = "<li>Event Started</li>";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      daysEl.textContent = days;
+      hoursEl.textContent = hours;
+      minutesEl.textContent = minutes;
+      secondsEl.textContent = seconds;
+    }, 1000);
+  });
+</script>
+
       </body>
 </html>
