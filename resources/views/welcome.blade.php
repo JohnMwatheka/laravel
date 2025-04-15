@@ -401,8 +401,9 @@
           <div class="col-xl-3 col-lg-5 wow fadeInUp order-1" data-wow-duration=".9s" data-wow-delay=".2s">
             <div class="mb-40 td-countdown-2-title">
               <h2 class="title">{{ $highlightedEvent->venue ?? 'Upcoming Event' }}</h2>
-              <span class="subtitle">{{ \Carbon\Carbon::parse($highlightedEvent->date ?? now())->format('jS F, Y') }}</span>
-            </div>
+              <span class="subtitle">{{ \Carbon\Carbon::parse($highlightedEvent->date ?? now())->format('jS M, Y') }}</span>
+          </div>
+          
           </div>
     
           <div class="col-xl-5 col-lg-7 wow fadeInUp order-2" data-wow-duration=".9s" data-wow-delay=".4s">
@@ -1401,7 +1402,7 @@
             <h2 class="td-section-title mb-15">
               The best teenFest experience 2025
             </h2>
-            <a class="td-btn-square" href="Ticket.html">Buy Tickets Now</a>
+            <a class="td-btn-square" href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy Tickets Now</a>
           </div>
         </div>
         <div class="col-xl-6 col-lg-4">
@@ -1793,19 +1794,19 @@
                       <div class="mb-15">
                         <span class="mb-10 d-inline-block">Venue</span>
                         <p>
-                          Event Name<br />
-                           Venue
+                          KICC<br />
+                          Grounds
                         </p>
                       </div>
                       <div class="td-border d-none d-sm-block"></div>
                       <div class="mb-15">
-                        <span class="mb-10 d-inline-block">Address</span>
+                        <span class="mb-10 d-inline-block">KICC </span>
                         <a
                           href="https://www.google.com/maps"
                           target="_blank"
                           class="d-block"
-                          >Adress<br />
-                          Of the event</a>
+                          >P.O Box<br />
+                          30746-01000</a>
                       </div>
                     </div>
                   </div>
@@ -1875,7 +1876,7 @@
                         <div class="td-footer-links">
                           <ul>
                             <li><a href="#">News</a></li>
-                            <li><a href="#">Get Tickets</a></li>
+                            <li><a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Get Tickets</a></li>
                             <li><a href="#">Benefits</a></li>
                             <li><a href="#">Contact Us</a></li>
                           </ul>
