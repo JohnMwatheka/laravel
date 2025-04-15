@@ -101,7 +101,7 @@ class Homecontroller extends Controller
             $phone = '254' . substr($phone, -9);
             // $paybill = env('MPESA_SHORT_CODE');
             $paybill =  "4083001";
-            $callBackURL = 'https://pay.m-tip.app/api/v1/c2b-stk-callback';
+            $callBackURL = url('/api/v1/c2b-stk-callback');
 
             $transactionType = "CustomerPayBillOnline";
             $accountReference = $reference;
@@ -191,47 +191,102 @@ class Homecontroller extends Controller
 
     public function StkCallback(Request $request)
     {
-        // Log::create([
-        //     'source' => 'Stk Callback new system',
-        //     'content' => json_encode($request->all()),
-        // ]);
-
         try {
+            $data = $request->all();
 
-            $json_data = json_encode($request->all());
-            // Decode the JSON string
-            $data = json_decode($json_data, true);
+            if (!isset($data['Body']['stkCallback'])) {
+                Log::error('Invalid STK callback data format', $data);
+                return response()->json([
+                    'ResponseCode' => '00000000',
+                    'ResponseDesc' => 'Accept service request successfully',
+                ]);
+            }
 
-            // Extract desired values
-            if (!empty($data['Body'])) {
-                $merchant_request_id = $data['Body']['stkCallback']['MerchantRequestID'];
-                $checkout_request_id = $data['Body']['stkCallback']['CheckoutRequestID'];
+            $resultCode = $data['Body']['stkCallback']['ResultCode'];
+            $merchant_request_id = $data['Body']['stkCallback']['MerchantRequestID'];
+            $checkout_request_id = $data['Body']['stkCallback']['CheckoutRequestID'];
+            $resultDesc = $data['Body']['stkCallback']['ResultDesc'];
 
-                // Loop through CallbackMetadata to find specific values
+            if ($resultCode == 0) {
+                $amount = 0;
+                $mpesaReceiptNumber = '';
+                $phone_number = '';
+
                 foreach ($data['Body']['stkCallback']['CallbackMetadata']['Item'] as $item) {
                     if ($item['Name'] === 'Amount') {
                         $amount = $item['Value'];
-                    } elseif ($item['Name'] === 'PhoneNumber') {
+                    } else if ($item['Name'] === 'MpesaReceiptNumber') {
+                        $mpesaReceiptNumber = $item['Value'];
+                    } else if ($item['Name'] === 'PhoneNumber') {
                         $phone_number = $item['Value'];
                     }
                 }
 
+                // Find the ticket by reference (we're assuming the reference is stored in AccountReference)
+                $ticket = \App\Models\Ticket::where('reference', $data['Body']['stkCallback']['AccountReference'] ?? '')
+                    ->first();
 
-                $tracker = PayTracker::where('MerchantRequestID', $merchant_request_id)->where('CheckoutRequestID', $checkout_request_id)->first();
-                // $receiverUserData = DB::table('user')->select('*')->where('user_id', 'like', $tracker->account_reference)->first();
-                // $receiverUserData = User::select('*')->where('user_id', $tracker->account_reference)->first();
-                $receiverUserData = User::where('user_id', substr($tracker->account_reference, -9))->first();
+                if ($ticket) {
+                    // Update the ticket with payment details
+                    $ticket->payment_status = 'completed';
+                    $ticket->mpesa_receipt_number = $mpesaReceiptNumber;
+                    $ticket->payment_date = now();
+                    $ticket->save();
 
-                
+                    Log::info("Payment completed for ticket: {$ticket->id}, Receipt: {$mpesaReceiptNumber}");
+                } else {
+                    Log::warning("Ticket not found for reference: " . ($data['Body']['stkCallback']['AccountReference'] ?? 'Unknown'));
+                }
+            } else {
+                Log::error("STK Push failed with code: {$resultCode}, Desc: {$resultDesc}");
+
+                // Find the ticket and mark it as failed
+                $ticket = \App\Models\Ticket::where('reference', $data['Body']['stkCallback']['AccountReference'] ?? '')
+                    ->first();
+
+                if ($ticket) {
+                    $ticket->payment_status = 'failed';
+                    $ticket->save();
+
+                    Log::info("Payment failed for ticket: {$ticket->id}");
+                }
             }
         } catch (\Exception $exception) {
-
-            Log::create([
-                'source' => 'Stk Callback Exception',
-                'content' => $exception->getMessage(),
-            ]);
-
-            // return $exception->getMessage();
+            Log::error("STK Callback Exception: " . $exception->getMessage());
         }
+
+        return response()->json([
+            'ResponseCode' => '00000000',
+            'ResponseDesc' => 'Accept service request successfully',
+        ]);
+    }
+
+     /**
+     * Handle M-Pesa confirmation callback
+     */
+    public function handleConfirmation(Request $request)
+    {
+        // Log the confirmation request
+        Log::info('M-Pesa Confirmation Callback', ['data' => $request->all()]);
+        
+        // Process the confirmation data
+        // This is typically where you'd update transaction status after receiving payment
+        
+        return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Confirmation received successfully']);
+    }
+
+    /**
+     * Handle M-Pesa validation callback
+     */
+    public function handleValidation(Request $request)
+    {
+        // Log the validation request
+        Log::info('M-Pesa Validation Callback', ['data' => $request->all()]);
+        
+        // You can perform validation logic here if needed
+        // For example, check if the account number exists or if the customer has sufficient balance
+        
+        // Return a success response to accept the transaction
+        return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Validation successful']);
     }
 }
