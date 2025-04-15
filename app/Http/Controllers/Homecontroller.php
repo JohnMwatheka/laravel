@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Traits\C2BSetup;
-Use App\Models\Event;
+use Illuminate\Support\Facades\Log;
+use App\Models\Event;
 
 class Homecontroller extends Controller
 {
@@ -21,12 +22,11 @@ class Homecontroller extends Controller
         return view('welcome', compact('events', 'highlightedEvent'));
     }
     public function Index(Event $event)
-{
-    $highlightedEvent = Event::find(1);
-    $amount = $event->tickets['early_bird'] ?? 0; // Fetch ticket amount
-    return view('ticket.index', compact('event', 'amount', 'highlightedEvent'));
-    
-}
+    {
+        $highlightedEvent = Event::find(1);
+        $amount = $event->tickets['early_bird'] ?? 0; // Fetch ticket amount
+        return view('ticket.index', compact('event', 'amount', 'highlightedEvent'));
+    }
 
 
     public function Contact()
@@ -75,7 +75,7 @@ class Homecontroller extends Controller
 
             $phone = '254' . substr($phone, -9);
             // $paybill = env('MPESA_SHORT_CODE');
-            $paybill =  "4048581";
+            $paybill =  "4083001";
             $callBackURL = 'https://pay.m-tip.app/api/v1/c2b-stk-callback';
 
             $transactionType = "CustomerPayBillOnline";
@@ -85,10 +85,14 @@ class Homecontroller extends Controller
             $stkPushSimulation = $this->stkPush($paybill, $transactionType, $amount, $phone, $paybill, $phone, $callBackURL, $accountReference, null, null, $token);
 
             $response = json_decode($stkPushSimulation, true);
+
+            Log::info($response);
+
             // Log::create([
             //     'source' => 'Stk Callback res',
             //     'content' => json_encode($response),
             // ]);
+
             $status = 'success';
             $message = 'Success. Request accepted for processing';
             if (empty($response['CheckoutRequestID'])) {
@@ -122,40 +126,38 @@ class Homecontroller extends Controller
     //Method to create event
     // Method to create event
     public function store(Request $request)
-        {
-            $validated = $request->validate([
-                'venue' => 'required|string|max:255',
-                'date' => 'required|date',
-                'early_bird' => 'required|numeric',
-                'advance' => 'required|numeric',
-                'gate' => 'required|numeric',
-                'event_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                'intro_video' => 'nullable|url'
-            ]);
+    {
+        $validated = $request->validate([
+            'venue' => 'required|string|max:255',
+            'date' => 'required|date',
+            'early_bird' => 'required|numeric',
+            'advance' => 'required|numeric',
+            'gate' => 'required|numeric',
+            'event_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'intro_video' => 'nullable|url'
+        ]);
 
-            // Handle image upload manually to public/uploads/events
-            $imagePath = null;
-            if ($request->hasFile('event_image')) {
-                $image = $request->file('event_image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/events'), $imageName);
-                $imagePath = 'uploads/events/' . $imageName; // relative path to use in HTML
-            }
-
-            Event::create([
-                'venue' => $validated['venue'],
-                'date' => $validated['date'],
-                'tickets' => [
-                    'early_bird' => $validated['early_bird'],
-                    'advance' => $validated['advance'],
-                    'gate' => $validated['gate'],
-                ],
-                'event_image' => $imagePath,
-                'intro_video' => $validated['intro_video'] ?? null,
-            ]);
-
-            return back()->with('success', 'Event created successfully!');
+        // Handle image upload manually to public/uploads/events
+        $imagePath = null;
+        if ($request->hasFile('event_image')) {
+            $image = $request->file('event_image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/events'), $imageName);
+            $imagePath = 'uploads/events/' . $imageName; // relative path to use in HTML
         }
 
+        Event::create([
+            'venue' => $validated['venue'],
+            'date' => $validated['date'],
+            'tickets' => [
+                'early_bird' => $validated['early_bird'],
+                'advance' => $validated['advance'],
+                'gate' => $validated['gate'],
+            ],
+            'event_image' => $imagePath,
+            'intro_video' => $validated['intro_video'] ?? null,
+        ]);
 
+        return back()->with('success', 'Event created successfully!');
+    }
 }

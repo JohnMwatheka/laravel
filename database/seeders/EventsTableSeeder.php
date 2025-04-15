@@ -18,9 +18,9 @@ class EventsTableSeeder extends Seeder
                 'venue' => 'Pace Teenz Festival',
                 'date' => '2025-11-29',
                 'tickets' => json_encode([
-                    'gate' => 500,
+                    'early_bird' => 500,
                     'advance' => 800,
-                    'early_bird' => 1000,
+                    'gate' => 1000,
                 ]),
                 'event_image' => 'uploads/events/1744413862_nibenip_by_slnbnsintention_dhkpwtc.jpg',
                 'intro_video' => 'https://youtu.be/fxHISPvGiRI',

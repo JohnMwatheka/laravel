@@ -223,7 +223,7 @@
                             <a href="{{ route('contact') }}">Contact</a>
                           </li>
                           <li class="menu-item-has-children">
-                            <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
+                            <a href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy Tickect</a>
                           </li>
                         </ul>
                       </div>
@@ -420,7 +420,7 @@
           <div class="col-xl-3 col-lg-5 wow fadeInUp order-3" data-wow-duration=".9s" data-wow-delay=".2s">
             <div class="mb-40 td-countdown-2-location-wrap text-end">
               <div class="td-countdown-2-location text-start p-relative bg-primary">
-                <a class="td-btn-square d-xl-block bg-primary" href="Ticket.html">Buy
+                <a class="td-btn-square d-xl-block bg-primary" href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy
                   <span class="subtitle"> Ticket</span>
                 </a>
               </div>
@@ -1466,7 +1466,7 @@
   >
     <div class="td-pricing-2-price mb-30">
       <span class="mb-5 subtitle">Early Bird</span>
-      <span class="price">Ksh.{{ $highlightedEvent['tickets']['early_bird'] ?? 'N/A' }}</span>
+      <span class="price">Ksh.{{ $highlightedEvent->tickets['early_bird'] ?? 'N/A' }}</span>
     </div>
     <div class="td-pricing-2-feature mb-35">
       <ul>
@@ -1510,7 +1510,7 @@
     </div>
     <a
   class="td-btn-square"
- href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}"
+ href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}"
 
   title="Open Now"
 >
@@ -1531,7 +1531,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Advance</span>
-                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['advance'] ?? 'N/A' }}</span>
+                      <span class="price">Ksh.{{ $highlightedEvent->tickets['advance'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
@@ -1596,7 +1596,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Gate</span>
-                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['gate'] ?? 'N/A' }}</span>
+                      <span class="price">Ksh.{{ $highlightedEvent->tickets['gate'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
@@ -1875,7 +1875,7 @@
                         <div class="td-footer-links">
                           <ul>
                             <li><a href="#">News</a></li>
-                            <li><a href="Ticket.html">Get Tickets</a></li>
+                            <li><a href="#">Get Tickets</a></li>
                             <li><a href="#">Benefits</a></li>
                             <li><a href="#">Contact Us</a></li>
                           </ul>
