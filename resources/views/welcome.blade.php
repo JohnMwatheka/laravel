@@ -223,7 +223,7 @@
                             <a href="{{ route('contact') }}">Contact</a>
                           </li>
                           <li class="menu-item-has-children">
-                            <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
+                            <a href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy Tickect</a>
                           </li>
                         </ul>
                       </div>
@@ -1466,7 +1466,7 @@
   >
     <div class="td-pricing-2-price mb-30">
       <span class="mb-5 subtitle">Early Bird</span>
-      <span class="price">Ksh.{{ $highlightedEvent['tickets']['early_bird'] ?? 'N/A' }}</span>
+      <span class="price">Ksh.{{ $highlightedEvent->tickets['early_bird'] ?? 'N/A' }}</span>
     </div>
     <div class="td-pricing-2-feature mb-35">
       <ul>
@@ -1510,7 +1510,7 @@
     </div>
     <a
   class="td-btn-square"
- href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}"
+ href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}"
 
   title="Open Now"
 >
@@ -1531,7 +1531,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Advance</span>
-                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['advance'] ?? 'N/A' }}</span>
+                      <span class="price">Ksh.{{ $highlightedEvent->tickets['advance'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
@@ -1596,7 +1596,7 @@
                   >
                     <div class="text-center td-pricing-2-price mb-30">
                       <span class="mb-5 subtitle">Gate</span>
-                      <span class="price">Ksh.{{ $highlightedEvent['tickets']['gate'] ?? 'N/A' }}</span>
+                      <span class="price">Ksh.{{ $highlightedEvent->tickets['gate'] ?? 'N/A' }}</span>
                     </div>
                     <div class="td-pricing-2-feature mb-35">
                       <ul>
