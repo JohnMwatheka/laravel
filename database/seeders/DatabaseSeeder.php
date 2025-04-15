@@ -19,5 +19,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Call additional seeders
+        $this->call([
+            EventSeeder::class, // Events must be seeded before tickets
+            TicketSeeder::class,
+        ]);
     }
 }

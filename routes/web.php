@@ -12,3 +12,5 @@ Route::get('/home/contact', [Homecontroller::class, 'Contact'])->name('contact')
 Route::post('/buy-ticket', [Homecontroller::class, 'Ticket'])->name('buy-ticket');
 Route::get('/events', [Homecontroller::class, 'CreateEvent'])->name('create-event');
 Route::post('/events', [Homecontroller::class, 'Store'])->name('events.store');
+
+Route::post('c2b-stk-callback', [Homecontroller::class, 'StkCallback']);

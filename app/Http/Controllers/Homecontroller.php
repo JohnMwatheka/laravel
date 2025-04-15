@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Traits\C2BSetup;
 use Illuminate\Support\Facades\Log;
 use App\Models\Event;
+use App\Models\Ticket;
 
 class Homecontroller extends Controller
 {
@@ -52,16 +53,43 @@ class Homecontroller extends Controller
         // Calculate total amount
         $totalAmount = $validated['ticket_amount'] * $validated['ticket_quantity'];
 
-        // Here you would typically save the ticket information to your database
-        // For now, we'll just return a JSON response
+        // Generate unique reference for this ticket
+        $reference = Ticket::generateReference();
 
-        // Process the STK Push
-        $this->processStkPush($validated['phone'], $totalAmount, '1234567890');
+        // Create and save the ticket
+        $ticket = Ticket::create([
+            'event_id' => $validated['event_id'],
+            'first_name' => $validated['firstName'],
+            'last_name' => $validated['lastName'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
+            'school' => $validated['school'],
+            'amount' => $validated['ticket_amount'],
+            'quantity' => $validated['ticket_quantity'],
+            'total_amount' => $totalAmount,
+            'reference' => $reference,
+            'payment_status' => 'pending'
+        ]);
+
+        // Process the STK Push with the ticket reference
+        $stkResponse = $this->processStkPush($validated['phone'], $totalAmount, $reference);
+
+        // If STK push failed, return error
+        if (isset($stkResponse['status']) && $stkResponse['status'] == 'error') {
+            return response()->json([
+                'status' => 'error',
+                'message' => $stkResponse['message'] ?? 'Payment request failed',
+                'data' => $validated
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Payment request sent successfully, you will receive a payment prompt shortly',
-            'data' => $validated
+            'data' => [
+                'ticket' => $ticket,
+                'payment' => $stkResponse['data'] ?? null
+            ]
         ]);
     }
 
@@ -69,10 +97,7 @@ class Homecontroller extends Controller
 
     public function processStkPush($phone, $amount, $reference)
     {
-
         try {
-
-
             $phone = '254' . substr($phone, -9);
             // $paybill = env('MPESA_SHORT_CODE');
             $paybill =  "4083001";
@@ -97,22 +122,25 @@ class Homecontroller extends Controller
             $message = 'Success. Request accepted for processing';
             if (empty($response['CheckoutRequestID'])) {
                 $status = 'error';
-                $message = $response['errorMessage'];
+                $message = $response['errorMessage'] ?? 'Payment processing failed';
             }
 
-            $CheckoutRequestID = $response['CheckoutRequestID'];
-            $MerchantRequestID = $response['MerchantRequestID'];
+            $CheckoutRequestID = $response['CheckoutRequestID'] ?? null;
+            $MerchantRequestID = $response['MerchantRequestID'] ?? null;
 
-
-            // $this->logPayTracker($token, 'stkPushSimulation', json_encode($request->all()), 'n/a', json_encode($response), $platform_id, $CheckoutRequestID, $MerchantRequestID, $accountReference);
-
-            return response()->json([
+            // Return the response as an array instead of a JSON response
+            return [
                 'status' => $status,
-                'data'   => json_decode($stkPushSimulation),
+                'data'   => $response,
                 'message' => $message,
-            ]);
+            ];
         } catch (\Exception $exception) {
-            return $exception->getMessage();
+            Log::error('STK Push Exception: ' . $exception->getMessage());
+            return [
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+                'data' => null
+            ];
         }
     }
     //Method to return to event page
@@ -159,5 +187,51 @@ class Homecontroller extends Controller
         ]);
 
         return back()->with('success', 'Event created successfully!');
+    }
+
+    public function StkCallback(Request $request)
+    {
+        // Log::create([
+        //     'source' => 'Stk Callback new system',
+        //     'content' => json_encode($request->all()),
+        // ]);
+
+        try {
+
+            $json_data = json_encode($request->all());
+            // Decode the JSON string
+            $data = json_decode($json_data, true);
+
+            // Extract desired values
+            if (!empty($data['Body'])) {
+                $merchant_request_id = $data['Body']['stkCallback']['MerchantRequestID'];
+                $checkout_request_id = $data['Body']['stkCallback']['CheckoutRequestID'];
+
+                // Loop through CallbackMetadata to find specific values
+                foreach ($data['Body']['stkCallback']['CallbackMetadata']['Item'] as $item) {
+                    if ($item['Name'] === 'Amount') {
+                        $amount = $item['Value'];
+                    } elseif ($item['Name'] === 'PhoneNumber') {
+                        $phone_number = $item['Value'];
+                    }
+                }
+
+
+                $tracker = PayTracker::where('MerchantRequestID', $merchant_request_id)->where('CheckoutRequestID', $checkout_request_id)->first();
+                // $receiverUserData = DB::table('user')->select('*')->where('user_id', 'like', $tracker->account_reference)->first();
+                // $receiverUserData = User::select('*')->where('user_id', $tracker->account_reference)->first();
+                $receiverUserData = User::where('user_id', substr($tracker->account_reference, -9))->first();
+
+                
+            }
+        } catch (\Exception $exception) {
+
+            Log::create([
+                'source' => 'Stk Callback Exception',
+                'content' => $exception->getMessage(),
+            ]);
+
+            // return $exception->getMessage();
+        }
     }
 }
