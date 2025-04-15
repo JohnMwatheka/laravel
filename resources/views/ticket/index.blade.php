@@ -261,7 +261,7 @@
                           <a href="/">Home</a>
                         </li>
                         <li class="menu-item-has-children">
-                          <a href="{{ route('create-event') }}">Events</a>
+                          <a href="#">Events</a>
                         </li>
                         <li class="menu-item-has-children">
                           <a href="#">Speakers</a>
