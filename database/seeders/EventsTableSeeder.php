@@ -15,7 +15,7 @@ class EventsTableSeeder extends Seeder
         DB::table('events')->insert([
             [
                 'id' => 1,
-                'venue' => 'Pace Teenz Festival',
+                'venue' => 'KICC Grounds',
                 'date' => '2025-11-29',
                 'tickets' => json_encode([
                     'early_bird' => 500,

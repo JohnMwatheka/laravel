@@ -431,8 +431,9 @@
         <input type="text" class="form-control form-input" name="phone" placeholder="Phone Number" required pattern="^(\+2547\d{8}|07\d{8})$" title="Please enter a valid phone number starting with +2547 or 07 followed by 8 digits.">
       </div>
       <div class="mb-3">
-        <input type="email" class="form-control form-input" name="email" placeholder="Email" required pattern="^[^@\s]+@[^@\s]+\.(com|org|net|edu|gov|co|io|info)$" title="Please enter a valid email address with a recognized domain.">
+        <input type="email" class="form-control form-input" name="email" placeholder="Email" required pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$" title="Please enter a valid email address.">
       </div>
+      
       <div class="mb-3">
         <input type="text" class="form-control form-input" name="school" placeholder="School" required title="Please enter your school name.">
       </div>
