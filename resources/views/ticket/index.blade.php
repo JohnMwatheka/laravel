@@ -508,7 +508,7 @@
                       <div class="td-footer-links">
                         <ul>
                           <li><a href="#">News</a></li>
-                          <li><a href="Ticket.html">Get Tickets</a></li>
+                          <li><a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Get Tickets</a></li>
                           <li><a href="#">Benefits</a></li>
                           <li><a href="#">Contact Us</a></li>
                         </ul>

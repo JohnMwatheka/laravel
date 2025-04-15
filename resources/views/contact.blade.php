@@ -385,7 +385,7 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="td-contact-map pb-40">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d26799.59403538039!2d36.77643509741882!3d-1.3092035605674432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1skose%20heights!5e1!3m2!1sen!2ske!4v1743086954249!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d837.4941366940185!2d36.82246731212413!3d-1.2886165750774095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f11747e756f41%3A0x146973898c119b47!2sKenyatta%20International%20Convention%20Centre!5e1!3m2!1sen!2ske!4v1744734508621!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
               </div>
             </div>
             <div class="col-lg-6">
@@ -530,7 +530,7 @@
                     <div class="td-footer-links">
                       <ul>
                         <li><a href="#">News</a></li>
-                        <li><a href="Ticket.html">Get Tickets</a></li>
+                        <li><a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Get Tickets</a></li>
                         <li><a href="#">Benefits</a></li>
                         <li><a href="#">Contact Us</a></li>
                       </ul>
