@@ -37,7 +37,7 @@ class TestController extends Controller
     public function registerCallbackUrl()
     {
         try {
-            
+
             $token = $this->generateC2bMpesaToken();
             $shortCode = "4083001";
             $confirmationUrl = url('/api/v1/c2b-confirmation');
