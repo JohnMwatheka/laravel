@@ -13,6 +13,10 @@
         .ticket-card {
             max-width: 500px;
             margin: auto;
+            border-radius: 1rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6610f2 0%, #6f42c1 100%);
         }
         .barcode {
             height: 70px;
@@ -23,6 +27,14 @@
                 #fff 2px,
                 #fff 4px
             );
+        }
+        @media (max-width: 576px) {
+            .ticket-card {
+                margin: 1rem;
+            }
+            .card-body {
+                padding: 1rem 1.25rem;
+            }
         }
     </style>
 </head>
@@ -35,13 +47,18 @@
             </div>
             <div class="card-body text-center">
                 <h5 class="card-title mb-3">E-Ticket Confirmation</h5>
-                <p class="lead mb-1">Ref #: <strong>{{ $ticketId }}</strong></p>
-                <p class="mb-3">Amount Paid: <strong>Ksh {{ number_format($amount, 2) }}</strong></p>
+                <p class="lead mb-1">E-Ticket Ref #: <strong>{{ $ticket->reference }}</strong></p>
+                <p class="mb-3">Amount Paid: <strong>Ksh {{ number_format($ticket->total_amount, 2) }}</strong></p>
+                <p class="text-muted small mb-3">Ticket(s): {{ $ticket->quantity }} • Type: Early Bird</p>
+
+                @if($event)
+                <p class="text-muted small">Event: <strong>{{ $event->venue }}</strong> &bullet; {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }}</p>
+                @endif
                 <div class="barcode my-4"></div>
                 <a href="#" class="btn btn-success w-100">Download Ticket PDF</a>
             </div>
-            <div class="card-footer text-muted text-center">
-                Thank you for choosing Pacesetter.
+            <div class="card-footer text-muted text-center small">
+                Need help? Contact support@pacesetter.co.ke
             </div>
         </div>
     </div>

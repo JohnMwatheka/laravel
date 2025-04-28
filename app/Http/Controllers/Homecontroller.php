@@ -336,7 +336,7 @@ class Homecontroller extends Controller
     /**
      * Send SMS to a phone number (placeholder implementation).
      */
-   
+
     public function sendSms($recipientPhone, $smsMessage)
     {
         // $recipientPhone = $request->input('recipientPhone');
@@ -397,10 +397,12 @@ class Homecontroller extends Controller
      */
     public function showTicketDownload(string $ticket, string $amount)
     {
-        // In real use, you might retrieve ticket model by id.
+        $ticketModel = Ticket::findOrFail($ticket);
+        $event = $ticketModel->event; // may be null
+
         return view('ticket.download', [
-            'ticketId' => $ticket,
-            'amount'   => $amount,
+            'ticket' => $ticketModel,
+            'event'  => $event,
         ]);
     }
 }
