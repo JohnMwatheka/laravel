@@ -21,7 +21,7 @@ Route::get('/register-mpesa-callback', [TestController::class, 'registerCallback
 // M-Pesa Callback Routes
 // Note: These routes need to be accessible by M-Pesa's servers without CSRF protection
 // In a production environment, make sure these are properly exempted from CSRF verification
-Route::post('/api/v1/c2b-stk-callback', [TestController::class, 'handleStkCallback']);
-
-Route::post('/api/v1/c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
-Route::post('/api/v1/c2b-validation', [Homecontroller::class, 'handleValidation']);
+// Route::post('/api/v1/c2b-stk-callback', [TestController::class, 'handleStkCallback']);
+//
+// Route::post('/api/v1/c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
+// Route::post('/api/v1/c2b-validation', [Homecontroller::class, 'handleValidation']);

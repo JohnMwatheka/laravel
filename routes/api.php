@@ -18,6 +18,7 @@ use App\Http\Controllers\Homecontroller;
 // M-Pesa callback routes
 // These routes don't require CSRF protection as they're called by M-Pesa
 Route::prefix('v1')->group(function () {
+    
     Route::post('c2b-stk-callback', [TestController::class, 'handleStkCallback']);
     // Route::post('c2b-confirmation', [TestController::class, 'handleConfirmation']);
     // Route::post('c2b-validation', [TestController::class, 'handleValidation']);
