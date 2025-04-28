@@ -3,67 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Ticket | Pace Teens Festival 2025</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QY6IsZj0oRvcnM1zCdnF7k4lZw99AsVl9D+1NqX0xP6KRZ7Lrzz2x4Ztfk9UDO9z" crossorigin="anonymous">
+    <title>E-Ticket | {{ $event?->venue ?? 'Pace Event' }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
     <style>
+        :root {
+            --card-bg: #1e1e1e;
+            --text-light: #e2e2e2;
+            --accent: #ff7f45;
+            --divider: rgba(255,255,255,0.1);
+        }
         body {
-            background: #f0f2f5;
+            background:#000; /* deep dark background */
+            color: var(--text-light);
+            font-family: "Inter", sans-serif;
         }
-        .ticket-card {
-            max-width: 500px;
-            margin: auto;
+        .ticket-wrapper{
+            max-width: 420px;
+            margin: 2rem auto;
+        }
+        .ticket-card{
+            background: var(--card-bg);
             border-radius: 1rem;
+            overflow:hidden;
         }
-        .card-header {
-            background: linear-gradient(135deg, #6610f2 0%, #6f42c1 100%);
+        .event-header{
+            display: flex;
+            gap:1rem;
+            padding:1rem;
         }
-        .barcode {
-            height: 70px;
-            background: repeating-linear-gradient(
-                90deg,
-                #000,
-                #000 2px,
-                #fff 2px,
-                #fff 4px
-            );
+        .event-header img{
+            width: 96px;
+            height:96px;
+            object-fit: cover;
+            border-radius: .5rem;
         }
-        @media (max-width: 576px) {
-            .ticket-card {
-                margin: 1rem;
-            }
-            .card-body {
-                padding: 1rem 1.25rem;
-            }
+        .chip{
+            font-size:.7rem;
+            background:#444;
+            color:#bbb;
+            padding:.2rem .6rem;
+            border-radius:999px;
+            text-transform:uppercase;
+            letter-spacing:.05em;
+        }
+        .divider{
+            border-top:1px dashed var(--divider);
+            margin:0 1rem;
+        }
+        .qr-section{
+            display:flex;
+            justify-content:center;
+            padding:1.5rem;
+        }
+        .terms{
+            background:#111;
+            padding:1rem 1.25rem;
+            font-size:.8rem;
+        }
+        .btn-download{
+            border-radius:2rem 2rem 1rem 1rem;
+            font-weight:600;
+            letter-spacing:.03em;
+            background: var(--accent);
+            border:none;
+        }
+        .details-table td{
+            padding:.25rem 0;
+        }
+        .copy-btn{
+            cursor:pointer;
         }
     </style>
 </head>
 <body>
-    <div class="container my-5">
-        <div class="ticket-card card shadow-lg border-0">
-            <div class="card-header bg-primary text-white text-center">
-                <h4 class="mb-0">Pace Teens Festival 2025</h4>
-                <small>KICC Grounds • 29 Nov 2025</small>
+    <div class="ticket-wrapper">
+        <div class="ticket-card shadow-lg">
+            <!-- Header -->
+            <div class="event-header">
+                <img src="{{ asset('uploads/events/' . ($event?->event_image ?? 'placeholder.jpg')) }}" alt="event"/>
+                <div class="flex-grow-1">
+                    <span class="chip">Festival</span>
+                    <h5 class="mt-2 mb-1 fw-semibold">{{ $event?->title ?? 'Pace Teens Festival 2025' }}</h5>
+                    <small class="text-muted">{{ $event?->venue ?? 'KICC Grounds, Nairobi' }}</small>
+                </div>
             </div>
-            <div class="card-body text-center">
-                <h5 class="card-title mb-3">E-Ticket Confirmation</h5>
-                <p class="lead mb-1">E-Ticket Ref #: <strong>{{ $ticket->reference }}</strong></p>
-                <p class="mb-3">Amount Paid: <strong>Ksh {{ number_format($ticket->total_amount, 2) }}</strong></p>
-                <p class="text-muted small mb-3">Ticket(s): {{ $ticket->quantity }} • Type: Early Bird</p>
-
-                @if($event)
-                <p class="text-muted small">Event: <strong>{{ $event->venue }}</strong> &bullet; {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }}</p>
-                @endif
-                <div class="barcode my-4"></div>
-                <a href="#" class="btn btn-success w-100">Download Ticket PDF</a>
+            <div class="divider"></div>
+            <!-- Details -->
+            <div class="px-4 py-3">
+                <table class="w-100 details-table">
+                    <tr>
+                        <td class="text-muted small">Venue</td><td class="fw-medium">{{ $event?->venue ?? 'KICC Grounds' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted small">Quantity</td><td>{{ $ticket->quantity }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted small">Date</td><td>{{ \Carbon\Carbon::parse($event?->date)->format('M d, Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted small">Time</td><td>{{ $event ? \Carbon\Carbon::parse($event->date)->format('h:i A') : '07:00 PM' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted small">Booking Code</td>
+                        <td>
+                            <span id="bookingCode" class="me-2">{{ $ticket->reference }}</span>
+                            <i class="bi bi-clipboard copy-btn" onclick="copyCode()"></i>
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <div class="card-footer text-muted text-center small">
-                Need help? Contact support@pacesetter.co.ke
+            <div class="divider"></div>
+            <!-- QR -->
+            <div class="qr-section">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode($ticket->reference) }}" alt="QR" class="rounded"/>
+            </div>
+            <div class="divider"></div>
+            <!-- Terms -->
+            <div class="terms">
+                <h6 class="fw-semibold mb-2">Terms &amp; Conditions</h6>
+                <ul class="mb-0">
+                    <li>Tickets are non-refundable unless event is canceled.</li>
+                    <li>Present valid ID alongside this e-ticket.</li>
+                    <li>Unauthorized duplication is prohibited.</li>
+                </ul>
             </div>
         </div>
+        <button class="btn btn-download w-100 py-3 mt-3" onclick="window.print()">Download Ticket</button>
     </div>
 
-    <!-- Bootstrap JS (optional for interactivity) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-vPvD5wQqM5eMFC2J3dhuHi7XNF57l7KF4tB7YTzaPFxfhjXk3oJzA2/4lK96yreJ" crossorigin="anonymous"></script>
+    <script>
+        function copyCode(){
+            const code = document.getElementById('bookingCode').innerText;
+            navigator.clipboard.writeText(code).then(()=>{
+                alert('Booking code copied');
+            });
+        }
+    </script>
 </body>
 </html> 
