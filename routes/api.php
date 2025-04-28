@@ -24,6 +24,6 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/register-mpesa-callback', [TestController::class, 'registerCallbackUrl']);
 
-    Route::post('/api/v1/c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
-    Route::post('/api/v1/c2b-validation', [Homecontroller::class, 'handleValidation']);
+    Route::post('c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
+    Route::post('c2b-validation', [Homecontroller::class, 'handleValidation']);
 });
