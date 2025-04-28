@@ -63,11 +63,12 @@
             font-size:.8rem;
         }
         .btn-download{
-            border-radius:2rem 2rem 1rem 1rem;
+            border-radius:2rem;
             font-weight:600;
             letter-spacing:.03em;
             background: var(--accent);
             border:none;
+            margin-bottom:1.5rem;
         }
         .details-table td{
             padding:.25rem 0;
@@ -82,7 +83,16 @@
         <div class="ticket-card shadow-lg">
             <!-- Header -->
             <div class="event-header">
-                <img src="{{ asset('uploads/events/' . ($event?->event_image ?? 'placeholder.jpg')) }}" alt="event"/>
+                @php
+                    use Illuminate\Support\Str;
+                    $imgPath = $event?->event_image;
+                    if ($imgPath) {
+                        $imageSrc = Str::startsWith($imgPath, ['http://','https://']) ? $imgPath : asset($imgPath);
+                    } else {
+                        $imageSrc = 'https://placehold.co/150x150?text=Event';
+                    }
+                @endphp
+                <img src="{{ $imageSrc }}" alt="event" class="event-img"/>
                 <div class="flex-grow-1">
                     <span class="chip">Festival</span>
                     <h5 class="mt-2 mb-1 fw-semibold">{{ $event?->title ?? 'Pace Teens Festival 2025' }}</h5>
