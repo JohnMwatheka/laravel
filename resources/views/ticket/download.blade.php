@@ -107,7 +107,7 @@
             <div class="px-4 py-3">
                 <table class="w-100 details-table">
                     <tr>
-                        <td class="text-muted small">Event Date & Time</td><td class="fw-medium">{{ \Carbon\Carbon::parse($event?->date)->format('M d, Y, h:i A') }}</td>
+                        <td class="text-muted small">Event Date </td><td class="fw-medium">{{ \Carbon\Carbon::parse($event?->date)->format('M d, Y, h:i A') }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted small">Quantity</td><td>{{ $ticket->quantity }}</td>
@@ -116,7 +116,7 @@
                         <td class="text-muted small">Purchased On</td><td>{{ $ticket->created_at->format('M d, Y, h:i A') }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted small">Amount Paid</td><td>Ksh {{ number_format($ticket->total_amount, 2) }}</td>
+                        <td class="text-muted small">Amount </td><td>Ksh {{ number_format($ticket->total_amount, 2) }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted small">Booking Code</td>
