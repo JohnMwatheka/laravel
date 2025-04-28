@@ -15,7 +15,7 @@ Route::get('/events', [Homecontroller::class, 'CreateEvent'])->name('create-even
 Route::post('/events', [Homecontroller::class, 'Store'])->name('events.store');
 
 // Ticket download / confirmation page
-Route::get('/buy/ticket/{ticket}/{amount}', [Homecontroller::class, 'showTicketDownload'])->name('ticket.download');
+Route::get('/get/ticket/{ticket}/{amount}', [Homecontroller::class, 'showTicketDownload'])->name('ticket.download');
 
 // M-Pesa Callbacks and Testing Routes
 Route::get('/test-stk-push', [TestController::class, 'testStkPush']);
