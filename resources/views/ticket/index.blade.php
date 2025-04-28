@@ -413,54 +413,53 @@
 
       
       
- <!-- td-contact-form-area-start -->
-<div class="container d-flex justify-content-center mt-3">
-  <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
-    <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
-    <form id="contact-form" action="{{ route('buy-ticket') }}" method="POST">
-      @csrf
-      <div class="row mb-3">
-        <div class="col">
-          <input type="text" class="form-control form-input" name="firstName" placeholder="First Name" required pattern="^[A-Za-z]+$" title="Please enter a valid first name (letters only).">
-        </div>
-        <div class="col">
-          <input type="text" class="form-control form-input" name="lastName" placeholder="Last Name" required pattern="^[A-Za-z]+$" title="Please enter a valid last name (letters only).">
-        </div>
-      </div>
-      <div class="mb-3">
-        <input type="text" class="form-control form-input" name="phone" placeholder="Phone Number" required pattern="^(\+2547\d{8}|07\d{8})$" title="Please enter a valid phone number starting with +2547 or 07 followed by 8 digits.">
-      </div>
-      <div class="mb-3">
-        <input type="email" class="form-control form-input" name="email" placeholder="Email" required pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$" title="Please enter a valid email address.">
-      </div>
-      
-      <div class="mb-3">
-        <input type="text" class="form-control form-input" name="school" placeholder="School" required title="Please enter your school name.">
-      </div>
-      <div class="mb-3 position-relative">
-        <select class="form-control form-input" name="ticket_quantity" required title="Please select the number of tickets.">
-          <option value="" disabled selected>Select Number of Tickets</option>
-          @for ($i = 1; $i <= 10; $i++)
-            <option value="{{ $i }}">{{ $i }}</option>
-          @endfor
-        </select>
-        <span class="position-absolute" style="top: 50%; right: 45px; transform: translateY(-50%); pointer-events: none; font-size: 2.4rem;">
-          &#9662;
-        </span>
-      </div>
-      <!-- Hidden Inputs -->
-      <input type="hidden" name="ticket_amount" value="{{ $amount }}">
-      <input type="hidden" name="event_id" value="{{ $event->id }}">
+    <!-- td-contact-form-area-start -->
+    <div class="container d-flex justify-content-center mt-3">
+      <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
+        <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
+        <form id="contact-form" action="{{ route('buy-ticket') }}" method="POST">
+          @csrf
+          <div class="row mb-3">
+            <div class="col">
+              <input type="text" class="form-control form-input" name="firstName" placeholder="First Name" required pattern="^[A-Za-z]+$" title="Please enter a valid first name (letters only).">
+            </div>
+            <div class="col">
+              <input type="text" class="form-control form-input" name="lastName" placeholder="Last Name" required pattern="^[A-Za-z]+$" title="Please enter a valid last name (letters only).">
+            </div>
+          </div>
+          <div class="mb-3">
+            <input type="text" class="form-control form-input" name="phone" placeholder="Phone Number" required pattern="^(\+2547\d{8}|07\d{8})$" title="Please enter a valid phone number starting with +2547 or 07 followed by 8 digits.">
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control form-input" name="email" placeholder="Email" required pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$" title="Please enter a valid email address.">
+          </div>
+          
+          <div class="mb-3">
+            <input type="text" class="form-control form-input" name="school" placeholder="School" required title="Please enter your school name.">
+          </div>
+          <div class="mb-3 position-relative">
+            <select class="form-control form-input" name="ticket_quantity" required title="Please select the number of tickets.">
+              <option value="" disabled selected>Select Number of Tickets</option>
+              @for ($i = 1; $i <= 10; $i++)
+                <option value="{{ $i }}">{{ $i }}</option>
+              @endfor
+            </select>
+            <span class="position-absolute" style="top: 50%; right: 45px; transform: translateY(-50%); pointer-events: none; font-size: 2.4rem;">
+              &#9662;
+            </span>
+          </div>
+          <!-- Hidden Inputs -->
+          <input type="hidden" name="ticket_amount" value="{{ $amount }}">
+          <input type="hidden" name="event_id" value="{{ $event->id }}">
 
-      <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
-    </form>
+          <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
+        </form>
 
-    <div id="response-message" class="alert mt-3 text-center" style="display: none;"></div>
-  </div>
-</div>
-<!-- td-contact-form-area-end -->
-     
-      
+        <div id="response-message" class="alert mt-3 text-center" style="display: none;"></div>
+      </div>
+    </div>
+    <!-- td-contact-form-area-end -->
+          
     </main>
     <!-- main-area-end -->
 
@@ -604,71 +603,83 @@
       document.getElementById("current-year").textContent = year;
     </script>
     
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('contact-form');
-        const responseMessage = document.getElementById('response-message');
-    
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-    
-          // Validate form fields
-          if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-          }
-    
-          // Show loading state
-          const submitButton = form.querySelector('button[type="submit"]');
-          const originalButtonText = submitButton.innerHTML;
-          submitButton.innerHTML = 'Processing...';
-          submitButton.disabled = true;
-    
-          // Get form data
-          const formData = new FormData(form);
-    
-          // Send AJAX request
-          fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-          })
-          .then(response => response.json())
-          .then(data => {
-            // Reset button
-            submitButton.innerHTML = originalButtonText;
-            submitButton.disabled = false;
-    
-            // Show response message
-            responseMessage.style.display = 'block';
-            responseMessage.className = 'alert mt-3 text-center';
-    
-            if (data.status === 'success') {
-              responseMessage.classList.add('alert-success');
-              responseMessage.textContent = data.message;
-              form.reset();
-            } else {
-              responseMessage.classList.add('alert-danger');
-              responseMessage.textContent = data.message || 'An error occurred. Please try again.';
-            }
-          })
-          .catch(error => {
-            // Reset button
-            submitButton.innerHTML = originalButtonText;
-            submitButton.disabled = false;
-    
-            // Show error message
-            responseMessage.style.display = 'block';
-            responseMessage.className = 'alert alert-danger mt-3 text-center';
-            responseMessage.textContent = 'An error occurred. Please try again.';
-            console.error('Error:', error);
-          });
-        });
+ 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contact-form');
+    const responseMessage = document.getElementById('response-message');
+    const formContainer = document.querySelector('.contact-form-container');
+    const formTitle = document.querySelector('.contact-form-container h3');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Validate form fields
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      // Hide form and title, show processing message
+      form.style.display = 'none';
+      formTitle.style.display = 'none';
+      responseMessage.style.display = 'block';
+      responseMessage.className = 'alert alert-info mt-3 text-center';
+      responseMessage.textContent = 'Processing your request...';
+
+      // Get form data
+      const formData = new FormData(form);
+
+      // Send AJAX request
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Show success message
+          responseMessage.className = 'alert alert-success mt-3 text-center';
+          responseMessage.textContent = data.message;
+          
+          // Reload page after 2 seconds
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          // Show error message
+          responseMessage.className = 'alert alert-danger mt-3 text-center';
+          responseMessage.textContent = data.message || 'An error occurred. Please try again.';
+          
+          // After 3 seconds, show form again and hide message
+          setTimeout(() => {
+            form.style.display = 'block';
+            formTitle.style.display = 'block';
+            responseMessage.style.display = 'none';
+          }, 3000);
+        }
+      })
+      .catch(error => {
+        // Show error message
+        responseMessage.className = 'alert alert-danger mt-3 text-center';
+        responseMessage.textContent = 'An error occurred. Please try again.';
+        
+        // After 3 seconds, show form again and hide message
+        setTimeout(() => {
+          form.style.display = 'block';
+          formTitle.style.display = 'block';
+          responseMessage.style.display = 'none';
+        }, 3000);
+        console.error('Error:', error);
       });
-    </script>
+    });
+  });
+</script>
+     
     
   </body>
 </html>
