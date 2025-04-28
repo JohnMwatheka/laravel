@@ -76,8 +76,8 @@ trait C2BSetup
     }
 
     function registerC2bMpesaCallBacks($confirmationURL, $validationURL, $shortCode, $token)
-    {
-
+    { 
+   
         $url = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
