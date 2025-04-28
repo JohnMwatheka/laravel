@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Ticket extends Model
 {
@@ -33,6 +34,7 @@ class Ticket extends Model
     // Generate a unique reference number
     public static function generateReference()
     {
-        return 'TKT' . time() . rand(1000, 9999);
+        // Generate an alphanumeric reference (letters and numbers)
+        return 'TKT-' . strtoupper(Str::random(5));
     }
 }
