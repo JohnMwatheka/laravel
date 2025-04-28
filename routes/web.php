@@ -14,6 +14,9 @@ Route::post('/buy-ticket', [Homecontroller::class, 'Ticket'])->name('buy-ticket'
 Route::get('/events', [Homecontroller::class, 'CreateEvent'])->name('create-event');
 Route::post('/events', [Homecontroller::class, 'Store'])->name('events.store');
 
+// Ticket download / confirmation page
+Route::get('/get/ticket/{ticket}/{amount}', [Homecontroller::class, 'showTicketDownload'])->name('ticket.download');
+
 // M-Pesa Callbacks and Testing Routes
 Route::get('/test-stk-push', [TestController::class, 'testStkPush']);
 Route::get('/register-mpesa-callback', [TestController::class, 'registerCallbackUrl']);
@@ -23,5 +26,5 @@ Route::get('/register-mpesa-callback', [TestController::class, 'registerCallback
 // In a production environment, make sure these are properly exempted from CSRF verification
 Route::post('/api/v1/c2b-stk-callback', [TestController::class, 'handleStkCallback']);
 
-Route::post('/api/v1/c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
-Route::post('/api/v1/c2b-validation', [Homecontroller::class, 'handleValidation']);
+// Route::post('/api/v1/c2b-confirmation', [Homecontroller::class, 'handleConfirmation']);
+// Route::post('/api/v1/c2b-validation', [Homecontroller::class, 'handleValidation']);

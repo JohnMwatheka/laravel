@@ -37,37 +37,21 @@ class TestController extends Controller
     public function registerCallbackUrl()
     {
         try {
+
             $token = $this->generateC2bMpesaToken();
-            $url = env('MPESA_REGISTER_URL', 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl');
-            
-            $shortCode = env('MPESA_SHORT_CODE', '4083001');
-            $confirmationUrl = env('MPESA_CONFIRMATION_URL', url('/api/v1/c2b-confirmation'));
-            $validationUrl = env('MPESA_VALIDATION_URL', url('/api/v1/c2b-validation'));
-            
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Content-Type:application/json',
-                'Authorization:Bearer '.$token
-            )); 
-            
-            $curl_post_data = array(
-                'ShortCode' => $shortCode,
-                'ResponseType' => 'Completed',
-                'ConfirmationURL' => $confirmationUrl,
-                'ValidationURL' => $validationUrl
+            $shortCode = "4083001";
+            $confirmationUrl = url('/api/v1/c2b-confirmation');
+            $validationUrl = url('/api/v1/c2b-validation');
+
+            // Use the existing function from the C2BSetup trait
+            $response = $this->registerC2bMpesaCallBacks(
+                $confirmationUrl,
+                $validationUrl,
+                $shortCode,
+                $token
             );
-            
-            $data_string = json_encode($curl_post_data);
-            
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-            
-            $curl_response = curl_exec($curl);
-            
-            return response()->json(json_decode($curl_response));
-            
+
+            return response()->json(json_decode($response));
         } catch (\Exception $e) {
             Log::error('Error registering callback URL: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
@@ -81,43 +65,43 @@ class TestController extends Controller
     {
         // Log the entire request for debugging
         Log::info('STK Callback received', ['data' => $request->all()]);
-        
+
         $callbackData = $request->all();
-        
+
         if (isset($callbackData['Body']) && isset($callbackData['Body']['stkCallback'])) {
             $callback = $callbackData['Body']['stkCallback'];
             $merchantRequestID = $callback['MerchantRequestID'] ?? null;
             $checkoutRequestID = $callback['CheckoutRequestID'] ?? null;
             $resultCode = $callback['ResultCode'] ?? null;
-            
+
             if ($resultCode == 0) {
                 // Success - payment was completed
                 $callbackMetadata = $callback['CallbackMetadata']['Item'] ?? [];
                 $mpesaReceiptNumber = null;
                 $amount = null;
                 $phoneNumber = null;
-                
+
                 foreach ($callbackMetadata as $item) {
                     if ($item['Name'] == 'MpesaReceiptNumber') $mpesaReceiptNumber = $item['Value'];
                     if ($item['Name'] == 'Amount') $amount = $item['Value'];
                     if ($item['Name'] == 'PhoneNumber') $phoneNumber = $item['Value'];
                 }
-                
+
                 // Find the ticket by MerchantRequestID or CheckoutRequestID
                 // Assuming you have a reference field that matches one of these
                 $ticket = Ticket::where('reference', $callback['merchantRequestID'] ?? 'unknown')->first();
-                
+
                 if ($ticket) {
                     // Update ticket payment status
                     $ticket->payment_status = 'completed';
                     $ticket->mpesa_receipt_number = $mpesaReceiptNumber;
                     $ticket->payment_date = now();
                     $ticket->save();
-                    
+
                     Log::info('Payment completed for ticket', ['ticket_id' => $ticket->id]);
                 } else {
                     Log::warning('Ticket not found for payment', [
-                        'merchantRequestID' => $merchantRequestID, 
+                        'merchantRequestID' => $merchantRequestID,
                         'checkoutRequestID' => $checkoutRequestID
                     ]);
                 }
@@ -127,7 +111,7 @@ class TestController extends Controller
                     'resultCode' => $resultCode,
                     'resultDesc' => $callback['ResultDesc'] ?? 'No description'
                 ]);
-                
+
                 // Find and update the ticket status if it exists
                 $ticket = Ticket::where('reference', $callback['merchantRequestID'] ?? 'unknown')->first();
                 if ($ticket) {
@@ -136,7 +120,7 @@ class TestController extends Controller
                 }
             }
         }
-        
+
         // Always return a success response to M-Pesa
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Accepted']);
     }
@@ -148,10 +132,10 @@ class TestController extends Controller
     {
         // Log the confirmation request
         Log::info('M-Pesa Confirmation Callback', ['data' => $request->all()]);
-        
+
         // Process the confirmation data
         // This is typically where you'd update transaction status after receiving payment
-        
+
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Confirmation received successfully']);
     }
 
@@ -162,10 +146,10 @@ class TestController extends Controller
     {
         // Log the validation request
         Log::info('M-Pesa Validation Callback', ['data' => $request->all()]);
-        
+
         // You can perform validation logic here if needed
         // For example, check if the account number exists or if the customer has sufficient balance
-        
+
         // Return a success response to accept the transaction
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Validation successful']);
     }
@@ -185,16 +169,16 @@ class TestController extends Controller
             $token = $this->generateC2bMpesaToken();
 
             $stkPushSimulation = $this->stkPush(
-                $paybill, 
-                $transactionType, 
-                $amount, 
-                $phone, 
-                $paybill, 
-                $phone, 
-                $callBackURL, 
-                $accountReference, 
-                null, 
-                null, 
+                $paybill,
+                $transactionType,
+                $amount,
+                $phone,
+                $paybill,
+                $phone,
+                $callBackURL,
+                $accountReference,
+                null,
+                null,
                 $token
             );
 
@@ -223,4 +207,4 @@ class TestController extends Controller
             ];
         }
     }
-} 
+}
