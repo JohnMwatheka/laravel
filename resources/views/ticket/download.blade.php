@@ -8,14 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
     <style>
         :root {
-            --card-bg: #1e1e1e;
-            --text-light: #e2e2e2;
+            --card-bg: #ffffff;
+            --text-dark: #212529;
             --accent: #ff7f45;
-            --divider: rgba(255,255,255,0.1);
+            --divider: rgba(0,0,0,0.075);
         }
         body {
-            background:#000; /* deep dark background */
-            color: var(--text-light);
+            background:#f8f9fa;
+            color: var(--text-dark);
             font-family: "Inter", sans-serif;
         }
         .ticket-wrapper{
@@ -26,6 +26,7 @@
             background: var(--card-bg);
             border-radius: 1rem;
             overflow:hidden;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
         }
         .event-header{
             display: flex;
@@ -40,8 +41,8 @@
         }
         .chip{
             font-size:.7rem;
-            background:#444;
-            color:#bbb;
+            background:#e9ecef;
+            color:#6c757d;
             padding:.2rem .6rem;
             border-radius:999px;
             text-transform:uppercase;
@@ -57,7 +58,7 @@
             padding:1.5rem;
         }
         .terms{
-            background:#111;
+            background:#f1f3f5;
             padding:1rem 1.25rem;
             font-size:.8rem;
         }
@@ -85,7 +86,10 @@
                 <div class="flex-grow-1">
                     <span class="chip">Festival</span>
                     <h5 class="mt-2 mb-1 fw-semibold">{{ $event?->title ?? 'Pace Teens Festival 2025' }}</h5>
-                    <small class="text-muted">{{ $event?->venue ?? 'KICC Grounds, Nairobi' }}</small>
+                    <small class="text-muted d-block mb-1">{{ $event?->venue ?? 'KICC Grounds, Nairobi' }}</small>
+                    @if(isset($event->intro_video))
+                    <small class="text-muted">{{ $event->intro_video }}</small>
+                    @endif
                 </div>
             </div>
             <div class="divider"></div>
