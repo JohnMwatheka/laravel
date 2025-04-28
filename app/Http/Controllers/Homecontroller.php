@@ -7,6 +7,9 @@ use App\Traits\C2BSetup;
 use Illuminate\Support\Facades\Log;
 use App\Models\Event;
 use App\Models\Ticket;
+use App\Models\Transaction;
+use GuzzleHttp\Client;
+
 
 class Homecontroller extends Controller
 {
@@ -261,17 +264,57 @@ class Homecontroller extends Controller
         ]);
     }
 
-     /**
+    /**
      * Handle M-Pesa confirmation callback
      */
     public function handleConfirmation(Request $request)
     {
         // Log the confirmation request
         Log::info('M-Pesa Confirmation Callback', ['data' => $request->all()]);
-        
-        // Process the confirmation data
-        // This is typically where you'd update transaction status after receiving payment
-        
+
+        // {"data":{"TransactionType":"Pay Bill","TransID":"TDS2L38KWI","TransTime":"20250428185618","TransAmount":"1.00","BusinessShortCode":"4083001","BillRefNumber":"4083001","InvoiceNumber":null,"OrgAccountBalance":"1500.00","ThirdPartyTransID":null,"MSISDN":"1f626721b0c2edac4bd8b10899c59f3a460cf3a57e73a9f338db9c4cbec1967e","FirstName":"JOSEPH"}} 
+
+
+        // Save confirmation details to transactions table
+        $transactionData = $request->all();
+
+        Transaction::create([
+            'transaction_type'    => $transactionData['TransactionType']    ?? null,
+            'trans_id'            => $transactionData['TransID']           ?? null,
+            'trans_time'          => $transactionData['TransTime']         ?? null,
+            'trans_amount'        => $transactionData['TransAmount']       ?? null,
+            'business_short_code' => $transactionData['BusinessShortCode'] ?? null,
+            'bill_ref_number'     => $transactionData['BillRefNumber']     ?? null,
+            'invoice_number'      => $transactionData['InvoiceNumber']     ?? null,
+            'org_account_balance' => $transactionData['OrgAccountBalance'] ?? null,
+            'third_party_trans_id' => $transactionData['ThirdPartyTransID'] ?? null,
+            'msisdn'              => $transactionData['MSISDN']            ?? null,
+            'first_name'          => $transactionData['FirstName']         ?? null,
+        ]);
+
+        // Update ticket payment status based on BillRefNumber (assumed to store the ticket reference)
+        if (!empty($transactionData['BillRefNumber'])) {
+            $ticket = Ticket::where('reference', $transactionData['BillRefNumber'])->first();
+
+            if ($ticket) {
+                $ticket->payment_status = 'completed';
+                $ticket->mpesa_receipt_number = $transactionData['TransID'] ?? null;
+                $ticket->payment_date = now();
+                $ticket->save();
+
+                // Send sms to the customer
+                $phone = $ticket->phone;
+                $message = "Confirmed Ksh. {$ticket->total_amount}, you successfully purchased {$ticket->quantity} early bird tickets for Pace Teens Festival 2025 at KICC Grounds on 29th Nov 2025. E-Ticket Ref#: {$ticket->reference}. Download your tickets here: https://events.pacesetter.co.ke/buy/ticket/{$ticket->id}/{$ticket->total_amount}";
+                $this->sendSms($phone, $message);
+
+                Log::info("Ticket {$ticket->id} marked as completed via Confirmation callback");
+            } else {
+                Log::warning('Ticket not found for BillRefNumber: ' . $transactionData['BillRefNumber']);
+            }
+        }
+
+        // Additional business logic can go here (e.g., updating ticket status)
+
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Confirmation received successfully']);
     }
 
@@ -282,11 +325,82 @@ class Homecontroller extends Controller
     {
         // Log the validation request
         Log::info('M-Pesa Validation Callback', ['data' => $request->all()]);
-        
+
         // You can perform validation logic here if needed
         // For example, check if the account number exists or if the customer has sufficient balance
-        
+
         // Return a success response to accept the transaction
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Validation successful']);
+    }
+
+    /**
+     * Send SMS to a phone number (placeholder implementation).
+     */
+   
+    public function sendSms($recipientPhone, $smsMessage)
+    {
+        // $recipientPhone = $request->input('recipientPhone');
+        // $smsMessage = $request->input('smsMessage');
+
+        try {
+            // Handle input from both HTTP request and direct method call
+            if ($recipientPhone instanceof Request) {
+                $request = $recipientPhone;
+                $recipientPhone = $request->input('recipientPhone');
+                $smsMessage = $request->input('smsMessage');
+            }
+
+            if (empty($recipientPhone) || empty($smsMessage)) {
+                throw new \InvalidArgumentException('Recipient phone and message are required');
+            }
+
+            $client = new Client();
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'ApiKey' => '2ZqSn5LGPfNyTpvRICWiG3vWnJim6zTR6oXimzg29Isn3niqSrXO8fKrOv4FZDSa',
+            ];
+
+            $body = [
+                'from' => 'PACESETTER',
+                'recipients' => [$recipientPhone],
+                'message' => $smsMessage,
+            ];
+
+            $response = $client->post('https://api.wasiliana.com/api/v1/send/sms', [
+                'headers' => $headers,
+                'json' => $body
+            ]);
+
+            $responseData = json_decode($response->getBody(), true);
+            Log::info('SMS sent successfully', [
+                'recipient' => $recipientPhone,
+                'response' => $responseData
+            ]);
+
+            return response()->json($responseData);
+        } catch (\Exception $e) {
+            Log::error('SMS sending failed', [
+                'recipient' => $recipientPhone,
+                'error' => $e->getMessage()
+            ]);
+
+            if ($recipientPhone instanceof Request) {
+                return response()->json(['error' => 'Failed to send SMS'], 500);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Display a simple ticket download confirmation page.
+     */
+    public function showTicketDownload(string $ticket, string $amount)
+    {
+        // In real use, you might retrieve ticket model by id.
+        return view('ticket.download', [
+            'ticketId' => $ticket,
+            'amount'   => $amount,
+        ]);
     }
 }
