@@ -9,93 +9,99 @@ use App\Models\Event;
 use App\Models\Ticket;
 use App\Models\Transaction;
 use GuzzleHttp\Client;
+use Illuminate\Support\Str;
 
 
 class Homecontroller extends Controller
 {
     use C2BSetup;
 
-    //
-
     public function home()
     {
         // Get all events (if needed in future) and the event with id = 1
         $events = Event::all();
         $highlightedEvent = Event::find(1); // or use firstWhere('id', 1);
-
+    
         return view('welcome', compact('events', 'highlightedEvent'));
     }
-    public function Index(Event $event)
-    {
-        $highlightedEvent = Event::find(1);
-        $amount = $event->tickets['early_bird'] ?? 0; // Fetch ticket amount
-        return view('ticket.index', compact('event', 'amount', 'highlightedEvent'));
+    
+    public function index($slug)
+{
+    $event = Event::where('slug', $slug)->firstOrFail();
+    $highlightedEvent = Event::find(1);
+    
+    if ($event->slug !== $slug) {
+        return redirect()->route('ticket', $event->slug);
     }
 
-
-    public function Contact()
+    return view('ticket.index', [
+        'event' => $event,
+        'highlightedEvent' => $highlightedEvent
+    ]);
+}
+    
+    public function contact()
     {
         $highlightedEvent = Event::find(1);
         return view('contact', compact('highlightedEvent'));
     }
-
     public function Ticket(Request $request)
-    {
-        // Validate the request including the new fields
-        $validated = $request->validate([
-            'firstName' => 'required|string|max:255',
-            'lastName' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'school' => 'required|string|max:255',
-            'ticket_amount' => 'required|numeric|min:1',
-            'ticket_quantity' => 'required|integer|min:1',
-            'event_id' => 'required|integer', //Added static event id
-        ]);
+{
+    // Validate the request (remove ticket_amount validation)
+    $validated = $request->validate([
+        'firstName' => 'required|string|max:255',
+        'lastName' => 'required|string|max:255',
+        'phone' => 'required|string|max:20',
+        'email' => 'required|email|max:255',
+        'school' => 'required|string|max:255',
+        'ticket_quantity' => 'required|integer|min:1',
+        'event_id' => 'required|integer|exists:events,id',
+    ]);
 
-        // Calculate total amount
-        $totalAmount = $validated['ticket_amount'] * $validated['ticket_quantity'];
+    // Get the event and determine amount server-side
+    $event = Event::findOrFail($validated['event_id']);
+    $amount = $event->tickets['early_bird']; 
 
-        // Generate unique reference for this ticket
-        $reference = Ticket::generateReference();
+    // Calculate total amount
+    $totalAmount = $amount * $validated['ticket_quantity'];
 
-        // Create and save the ticket
-        $ticket = Ticket::create([
-            'event_id' => $validated['event_id'],
-            'first_name' => $validated['firstName'],
-            'last_name' => $validated['lastName'],
-            'phone' => $validated['phone'],
-            'email' => $validated['email'],
-            'school' => $validated['school'],
-            'amount' => $validated['ticket_amount'],
-            'quantity' => $validated['ticket_quantity'],
-            'total_amount' => $totalAmount,
-            'reference' => $reference,
-            'payment_status' => 'pending'
-        ]);
+    // Generate unique reference for this ticket
+    $reference = Ticket::generateReference();
 
-        // Process the STK Push with the ticket reference
-        $stkResponse = $this->processStkPush($validated['phone'], $totalAmount, $reference);
+    // Create and save the ticket
+    $ticket = Ticket::create([
+        'event_id' => $validated['event_id'],
+        'first_name' => $validated['firstName'],
+        'last_name' => $validated['lastName'],
+        'phone' => $validated['phone'],
+        'email' => $validated['email'],
+        'school' => $validated['school'],
+        'amount' => $amount, // Now using server-determined amount
+        'quantity' => $validated['ticket_quantity'],
+        'total_amount' => $totalAmount,
+        'reference' => $reference,
+        'payment_status' => 'pending'
+    ]);
 
-        // If STK push failed, return error
-        if (isset($stkResponse['status']) && $stkResponse['status'] == 'error') {
-            return response()->json([
-                'status' => 'error',
-                'message' => $stkResponse['message'] ?? 'Payment request failed',
-                'data' => $validated
-            ]);
-        }
+    $stkResponse = $this->processStkPush($validated['phone'], $totalAmount, $reference);
 
+    if (isset($stkResponse['status']) && $stkResponse['status'] == 'error') {
         return response()->json([
-            'status' => 'success',
-            'message' => 'Payment request sent successfully, you will receive a payment prompt shortly',
-            'data' => [
-                'ticket' => $ticket,
-                'payment' => $stkResponse['data'] ?? null
-            ]
+            'status' => 'error',
+            'message' => $stkResponse['message'] ?? 'Payment request failed',
+            'data' => $validated
         ]);
     }
 
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Payment request sent successfully',
+        'data' => [
+            'ticket' => $ticket,
+            'payment' => $stkResponse['data'] ?? null,
+        ]
+    ]);
+}
 
 
     public function processStkPush($phone, $amount, $reference)
@@ -155,42 +161,46 @@ class Homecontroller extends Controller
         return view('events.create-event', compact('highlightedEvent'));
     }
     //Method to create event
-    // Method to create event
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'venue' => 'required|string|max:255',
-            'date' => 'required|date',
-            'early_bird' => 'required|numeric',
-            'advance' => 'required|numeric',
-            'gate' => 'required|numeric',
-            'event_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'intro_video' => 'nullable|url'
-        ]);
+        {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:events', // Ensure event names are unique
+                'venue' => 'required|string|max:255',
+                'date' => 'required|date',
+                'early_bird' => 'required|numeric',
+                'advance' => 'required|numeric',
+                'gate' => 'required|numeric',
+                'event_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'intro_video' => 'nullable|url'
+            ]);
 
-        // Handle image upload manually to public/uploads/events
-        $imagePath = null;
-        if ($request->hasFile('event_image')) {
-            $image = $request->file('event_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/events'), $imageName);
-            $imagePath = 'uploads/events/' . $imageName; // relative path to use in HTML
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('event_image')) {
+                $image = $request->file('event_image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/events'), $imageName);
+                $imagePath = 'uploads/events/' . $imageName;
+            }
+
+            // Create the event with all fields including name and auto-generated slug
+            Event::create([
+                'name' => $validated['name'],
+                'slug' => Str::slug($validated['name']), // Auto-generate slug from name
+                'venue' => $validated['venue'],
+                'date' => $validated['date'],
+                'tickets' => [
+                    'early_bird' => $validated['early_bird'],
+                    'advance' => $validated['advance'],
+                    'gate' => $validated['gate'],
+                ],
+                'event_image' => $imagePath,
+                'intro_video' => $validated['intro_video'] ?? null,
+            ]);
+
+            return back()->with('success', 'Event created successfully!');
         }
-
-        Event::create([
-            'venue' => $validated['venue'],
-            'date' => $validated['date'],
-            'tickets' => [
-                'early_bird' => $validated['early_bird'],
-                'advance' => $validated['advance'],
-                'gate' => $validated['gate'],
-            ],
-            'event_image' => $imagePath,
-            'intro_video' => $validated['intro_video'] ?? null,
-        ]);
-
-        return back()->with('success', 'Event created successfully!');
-    }
+        //end method.
 
     public function StkCallback(Request $request)
     {

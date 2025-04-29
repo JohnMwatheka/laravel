@@ -242,7 +242,12 @@
                           <a href="{{ route('contact') }}">Contact</a>
                         </li>
                         <li class="menu-item-has-children">
-                          <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
+                          <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                            class="buy-ticket-link"
+                            data-event-id="{{ $highlightedEvent->id }}"
+                            data-amount="{{ $highlightedEvent->tickets['early_bird'] }}">
+                            Buy Ticket                            
+                          </a>
                         </li>
                       </ul>
                     </div>
@@ -530,7 +535,14 @@
                     <div class="td-footer-links">
                       <ul>
                         <li><a href="#">News</a></li>
-                        <li><a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Get Tickets</a></li>
+                        <li>
+                          <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                            class="buy-ticket-link"
+                            data-event-id="{{ $highlightedEvent->id }}"
+                            data-amount="{{ $highlightedEvent->tickets['early_bird'] }}">
+                            Buy Ticket                            
+                          </a>
+                      </li>
                         <li><a href="#">Benefits</a></li>
                         <li><a href="#">Contact Us</a></li>
                       </ul>

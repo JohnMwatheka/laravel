@@ -240,8 +240,16 @@
                             <a href="{{ route('contact') }}">Contact</a>
                           </li>
                           <li class="menu-item-has-children">
-                            <a href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy Tickect</a>
+                            <li class="menu-item-has-children">
+                              <li class="menu-item-has-children">
+                                <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                                  class="buy-ticket-link"
+                                  data-event-id="{{ $highlightedEvent->id }}">
+                                  Buy Ticket
+                               </a>
+                            </li>
                           </li>
+                        </li>
                         </ul>
                       </div>
                     </nav>
@@ -438,9 +446,13 @@
           <div class="col-xl-3 col-lg-5 wow fadeInUp order-3" data-wow-duration=".9s" data-wow-delay=".2s">
             <div class="mb-40 td-countdown-2-location-wrap text-end">
               <div class="td-countdown-2-location text-start p-relative bg-primary">
-                <a class="td-btn-square d-xl-block bg-primary" href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy
-                  <span class="subtitle"> Ticket</span>
-                </a>
+                <li class="menu-item-has-children">
+                  <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                    class="buy-ticket-link td-btn-square d-xl-block bg-primary"
+                    data-event-id="{{ $highlightedEvent->id }}"> Buy
+                    <span class=""> Ticket</span>
+                 </a>
+              </li>
               </div>
             </div>
           </div>
@@ -1421,7 +1433,13 @@
             <h2 class="td-section-title mb-15">
               The best teenFest experience 2025
             </h2>
-            <a class="td-btn-square" href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}">Buy Tickets Now</a>
+            <li class="menu-item-has-children">
+              <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                class="buy-ticket-link td-btn-square"
+                data-event-id="{{ $highlightedEvent->id }}">
+                Buy Ticket
+             </a>
+          </li>
           </div>
         </div>
         <div class="col-xl-6 col-lg-4">
@@ -1528,13 +1546,12 @@
         <li></li>
       </ul>
     </div>
-    <a
-  class="td-btn-square"
- href="{{ route('ticket', ['event' => $highlightedEvent->id ?? 1, 'amount' => $highlightedEvent->tickets['early_bird'] ?? 0]) }}"
-
-  title="Open Now"
->
-  Purchase Tickets
+    <a class="td-btn-square"
+   href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}"
+   data-event-id="{{ $highlightedEvent->id }}"
+   data-amount="{{ $highlightedEvent->tickets['early_bird'] }}"
+   title="Open Now">
+   Purchase Tickets
 </a>
 
   </div>
@@ -1895,7 +1912,13 @@
                         <div class="td-footer-links">
                           <ul>
                             <li><a href="#">News</a></li>
-                            <li><a href="#">Get Tickets</a></li>
+                            <li>
+                              <li class="menu-item-has-children">
+                                <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                                  class="buy-ticket-link "
+                                  data-event-id="{{ $highlightedEvent->id }}">
+                                  Buy Ticket
+                               </a></li>
                             <li><a href="#">Benefits</a></li>
                             <li><a href="#">Contact Us</a></li>
                           </ul>

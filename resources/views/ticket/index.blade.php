@@ -271,7 +271,12 @@
                           <a href="{{ route('contact') }}">Contact</a>
                         </li>
                         <li class="active">
-                          <a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Buy Tickect</a>
+                          <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                            class="buy-ticket-link"
+                            data-event-id="{{ $highlightedEvent->id }}"
+                            data-amount="{{ $highlightedEvent->tickets['early_bird'] }}">
+                            Buy Ticket                            
+                         </a>
                         </li>
                       </ul>
                     </div>
@@ -413,8 +418,7 @@
 
       
       
-    <!-- td-contact-form-area-start -->
-    <!-- td-contact-form-area-start -->
+  <!-- td-contact-form-area-start -->
 <div class="container d-flex justify-content-center mt-3">
   <div class="contact-form-container col-lg-8 col-xl-6 col-sm-12">
     <h3 class="text-center mb-4 text-secondary">Buy Ticket</h3>
@@ -449,8 +453,8 @@
           &#9662;
         </span>
       </div>
-      <!-- Hidden Inputs -->
-      <input type="hidden" name="ticket_amount" value="{{ $amount }}">
+      
+      <!-- Hidden Input - Removed ticket_amount and kept only event_id -->
       <input type="hidden" name="event_id" value="{{ $event->id }}">
 
       <button type="submit" class="form-btn btn-sm col-sm-12 col-lg-12 col-xl-12 justify-between">Buy Ticket</button>
@@ -460,8 +464,8 @@
   </div>
 </div>
 <!-- td-contact-form-area-end -->
-    <!-- td-contact-form-area-end -->
-          
+
+    
     </main>
     <!-- main-area-end -->
 
@@ -510,7 +514,14 @@
                       <div class="td-footer-links">
                         <ul>
                           <li><a href="#">News</a></li>
-                          <li><a href="{{ route('ticket', ['event' => $highlightedEvent['id'], 'amount' => $highlightedEvent['tickets']['early_bird'] ?? 0]) }}">Get Tickets</a></li>
+                          <li>
+                            <a href="{{ route('ticket', ['slug' => $highlightedEvent->slug]) }}" 
+                              class="buy-ticket-link"
+                              data-event-id="{{ $highlightedEvent->id }}">
+                              Buy Ticket
+                           </a>
+                          </li>
+                          
                           <li><a href="#">Benefits</a></li>
                           <li><a href="#">Contact Us</a></li>
                         </ul>
@@ -605,112 +616,116 @@
       document.getElementById("current-year").textContent = year;
     </script>
     
- 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('contact-form');
-        const responseMessage = document.getElementById('response-message');
-        const formContainer = document.querySelector('.contact-form-container');
-        const formTitle = document.querySelector('.contact-form-container h3');
-    
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-    
-          // Store form data in case we need to restore it
-          const formData = new FormData(form);
-          const formDataObj = Object.fromEntries(formData.entries());
-    
-          // Validate form fields
-          if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
+          // Remove sessionStorage related to ticketAmount since we don't need it anymore
+          if (sessionStorage.getItem('ticketAmount')) {
+              sessionStorage.removeItem('ticketAmount');
           }
-    
-          // Hide form and title, show processing message
-          form.style.display = 'none';
-          formTitle.style.display = 'none';
-          responseMessage.style.display = 'block';
-          responseMessage.className = 'alert alert-info mt-3 text-center';
-          responseMessage.textContent = 'Processing your request...';
-    
-          // Send AJAX request
-          fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-          })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
-            if (data.status === 'success' && !data.error) {
-              // Show success message
-              responseMessage.className = 'alert alert-success mt-3 text-center';
-              responseMessage.textContent = data.message || 'Ticket purchased successfully!';
-              
-              // Only reload after everything is successful
-              setTimeout(() => {
-                window.location.reload();
-              }, 2000);
-            } else {
-              // Show error message
-              const errorMsg = data.message || data.error || 'An error occurred. Please try again.';
-              responseMessage.className = 'alert alert-danger mt-3 text-center';
-              responseMessage.textContent = errorMsg;
-              
-              // Restore form data and show form again
-              setTimeout(() => {
-                Object.keys(formDataObj).forEach(key => {
-                  const input = form.querySelector(`[name="${key}"]`);
-                  if (input) {
-                    if (input.type === 'select-one') {
-                      input.value = formDataObj[key];
-                    } else {
-                      input.value = formDataObj[key];
-                    }
+      
+          // Original form submission handler (unchanged)
+          const form = document.getElementById('contact-form');
+          const responseMessage = document.getElementById('response-message');
+          const formContainer = document.querySelector('.contact-form-container');
+          const formTitle = document.querySelector('.contact-form-container h3');
+      
+          form.addEventListener('submit', function(e) {
+              e.preventDefault();
+      
+              // Validate form fields
+              if (!form.checkValidity()) {
+                  form.reportValidity();
+                  return;
+              }
+      
+              // Store form data in case we need to restore it
+              const formData = new FormData(form);
+              const formDataObj = Object.fromEntries(formData.entries());
+      
+              // Hide form and title, show processing message
+              form.style.display = 'none';
+              formTitle.style.display = 'none';
+              responseMessage.style.display = 'block';
+              responseMessage.className = 'alert alert-info mt-3 text-center';
+              responseMessage.textContent = 'Processing your request...';
+      
+              // Send AJAX request
+              fetch(form.action, {
+                  method: 'POST',
+                  body: formData,
+                  headers: {
+                      'X-Requested-With': 'XMLHttpRequest',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                   }
-                });
-                
-                form.style.display = 'block';
-                formTitle.style.display = 'block';
-                responseMessage.style.display = 'none';
-              }, 3000);
-            }
-          })
-          .catch(error => {
-            // Show error message
-            responseMessage.className = 'alert alert-danger mt-3 text-center';
-            responseMessage.textContent = 'An error occurred. Please try again.';
-            
-            // Restore form data and show form again
-            setTimeout(() => {
-              Object.keys(formDataObj).forEach(key => {
-                const input = form.querySelector(`[name="${key}"]`);
-                if (input) {
-                  if (input.type === 'select-one') {
-                    input.value = formDataObj[key];
+              })
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.json();
+              })
+              .then(data => {
+                  if (data.status === 'success' && !data.error) {
+                      // Show success message
+                      responseMessage.className = 'alert alert-success mt-3 text-center';
+                      responseMessage.textContent = data.message || 'Ticket purchased successfully!';
+                      
+                      // Only reload after everything is successful
+                      setTimeout(() => {
+                          window.location.reload();
+                      }, 2000);
                   } else {
-                    input.value = formDataObj[key];
+                      // Show error message
+                      const errorMsg = data.message || data.error || 'An error occurred. Please try again.';
+                      responseMessage.className = 'alert alert-danger mt-3 text-center';
+                      responseMessage.textContent = errorMsg;
+                      
+                      // Restore form data and show form again
+                      setTimeout(() => {
+                          Object.keys(formDataObj).forEach(key => {
+                              const input = form.querySelector(`[name="${key}"]`);
+                              if (input) {
+                                  if (input.type === 'select-one') {
+                                      input.value = formDataObj[key];
+                                  } else {
+                                      input.value = formDataObj[key];
+                                  }
+                              }
+                          });
+                          
+                          form.style.display = 'block';
+                          formTitle.style.display = 'block';
+                          responseMessage.style.display = 'none';
+                      }, 3000);
                   }
-                }
+              })
+              .catch(error => {
+                  // Show error message
+                  responseMessage.className = 'alert alert-danger mt-3 text-center';
+                  responseMessage.textContent = 'An error occurred. Please try again.';
+                  
+                  // Restore form data and show form again
+                  setTimeout(() => {
+                      Object.keys(formDataObj).forEach(key => {
+                          const input = form.querySelector(`[name="${key}"]`);
+                          if (input) {
+                              if (input.type === 'select-one') {
+                                  input.value = formDataObj[key];
+                              } else {
+                                  input.value = formDataObj[key];
+                              }
+                          }
+                      });
+                      
+                      form.style.display = 'block';
+                      formTitle.style.display = 'block';
+                      responseMessage.style.display = 'none';
+                  }, 3000);
+                  console.error('Error:', error);
               });
-              
-              form.style.display = 'block';
-              formTitle.style.display = 'block';
-              responseMessage.style.display = 'none';
-            }, 3000);
-            console.error('Error:', error);
           });
-        });
       });
-    </script>
-     
+      </script>      
     
   </body>
 </html>

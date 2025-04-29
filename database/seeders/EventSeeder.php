@@ -4,17 +4,22 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
-class EventsTableSeeder extends Seeder
+class EventSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+        $eventName = 'TeenzFest 2025';
+        
         DB::table('events')->insert([
             [
                 'id' => 1,
+                'name' => $eventName,
+                'slug' => Str::slug($eventName),
                 'venue' => 'KICC Grounds',
                 'date' => '2025-11-29',
                 'tickets' => json_encode([
