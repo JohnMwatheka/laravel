@@ -616,6 +616,10 @@
         form.addEventListener('submit', function(e) {
           e.preventDefault();
     
+          // Store form data in case we need to restore it
+          const formData = new FormData(form);
+          const formDataObj = Object.fromEntries(formData.entries());
+    
           // Validate form fields
           if (!form.checkValidity()) {
             form.reportValidity();
@@ -629,9 +633,6 @@
           responseMessage.className = 'alert alert-info mt-3 text-center';
           responseMessage.textContent = 'Processing your request...';
     
-          // Get form data
-          const formData = new FormData(form);
-    
           // Send AJAX request
           fetch(form.action, {
             method: 'POST',
@@ -641,24 +642,41 @@
               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
           })
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
           .then(data => {
-            if (data.status === 'success') {
+            if (data.status === 'success' && !data.error) {
               // Show success message
               responseMessage.className = 'alert alert-success mt-3 text-center';
-              responseMessage.textContent = data.message;
+              responseMessage.textContent = data.message || 'Ticket purchased successfully!';
               
-              // Reload page after 2 seconds
+              // Only reload after everything is successful
               setTimeout(() => {
                 window.location.reload();
               }, 2000);
             } else {
               // Show error message
+              const errorMsg = data.message || data.error || 'An error occurred. Please try again.';
               responseMessage.className = 'alert alert-danger mt-3 text-center';
-              responseMessage.textContent = data.message || 'An error occurred. Please try again.';
+              responseMessage.textContent = errorMsg;
               
-              // After 3 seconds, show form again and hide message
+              // Restore form data and show form again
               setTimeout(() => {
+                Object.keys(formDataObj).forEach(key => {
+                  const input = form.querySelector(`[name="${key}"]`);
+                  if (input) {
+                    if (input.type === 'select-one') {
+                      input.value = formDataObj[key];
+                    } else {
+                      input.value = formDataObj[key];
+                    }
+                  }
+                });
+                
                 form.style.display = 'block';
                 formTitle.style.display = 'block';
                 responseMessage.style.display = 'none';
@@ -670,8 +688,19 @@
             responseMessage.className = 'alert alert-danger mt-3 text-center';
             responseMessage.textContent = 'An error occurred. Please try again.';
             
-            // After 3 seconds, show form again and hide message
+            // Restore form data and show form again
             setTimeout(() => {
+              Object.keys(formDataObj).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                  if (input.type === 'select-one') {
+                    input.value = formDataObj[key];
+                  } else {
+                    input.value = formDataObj[key];
+                  }
+                }
+              });
+              
               form.style.display = 'block';
               formTitle.style.display = 'block';
               responseMessage.style.display = 'none';
