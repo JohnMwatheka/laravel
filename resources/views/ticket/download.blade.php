@@ -107,7 +107,7 @@
             <div class="px-4 py-3">
                 <table class="w-100 details-table">
                     <tr>
-                        <td class="text-muted small">Attendee </td><td class="fw-medium">{{ $ticket->forename ?? '' }} {{ $ticket->last_name ?? '' }}</td>
+                        <td class="text-muted small">Attendee </td><td class="fw-medium">{{ $ticket->first_name ?? '' }} {{ $ticket->last_name ?? '' }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted small">Quantity</td><td>{{ $ticket->quantity }}</td>
