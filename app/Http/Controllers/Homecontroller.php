@@ -405,7 +405,7 @@ class Homecontroller extends Controller
     /**
      * Display a simple ticket download confirmation page.
      */
-    public function showTicketDownload(string $ticket, string $amount)
+    public function showTicketDownload(string $ticket)
     {
         $ticketModel = Ticket::findOrFail($ticket);
         $event = $ticketModel->event; // may be null
