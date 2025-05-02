@@ -113,7 +113,7 @@
                         <td class="text-muted small">Quantity</td><td>{{ $ticket->quantity }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted small">Purchased On</td><td>{{ $ticket->created_at->format('M d, Y') }}</td>
+                        <td class="text-muted small">Purchased On</td><td>{{ $ticket->created_at->timezone('Africa/Nairobi')->format('M d, Y') }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted small">Amount </td><td>Ksh {{ number_format($ticket->total_amount, 2) }}</td>
