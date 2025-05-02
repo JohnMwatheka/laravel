@@ -314,7 +314,7 @@ class Homecontroller extends Controller
 
                 // Send sms to the customer
                 $phone = $ticket->phone;
-                $message = "Confirmed Ksh. {$ticket->total_amount}, you successfully purchased {$ticket->quantity} early bird tickets for Pace Teens Festival 2025 at KICC Grounds on 29th Nov 2025. E-Ticket Ref#: {$ticket->reference}. Download your tickets here: https://events.pacesetter.co.ke/get/ticket/{$ticket->id}/{$ticket->total_amount}";
+                $message = "Confirmed Ksh. {$ticket->total_amount}, you successfully purchased {$ticket->quantity} early bird tickets for Pace Teens Festival 2025 at KICC Grounds on 29th Nov 2025. E-Ticket Ref#: {$ticket->reference}. Download your tickets here: https://events.pacesetter.co.ke/get/ticket/{$ticket->id}";
                 $this->sendSms($phone, $message);
 
                 Log::info("Ticket {$ticket->id} marked as completed via Confirmation callback");

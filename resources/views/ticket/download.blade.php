@@ -97,9 +97,9 @@
                     <span class="chip">Festival</span>
                     <h5 class="mt-2 mb-1 fw-semibold">{{ $event?->title ?? 'Pace Teens Festival 2025' }}</h5>
                     <small class="text-muted d-block mb-1">{{ $event?->venue ?? 'KICC Grounds, Nairobi' }}</small>
-                    @if(isset($event->intro_video))
-                    <small class="text-muted">{{ $event->intro_video }}</small>
-                    @endif
+                   
+                    <small class="text-muted">{{ \Carbon\Carbon::parse($event?->date)->format('M d, Y') }}</small>
+                    
                 </div>
             </div>
             <div class="divider"></div>
@@ -107,7 +107,7 @@
             <div class="px-4 py-3">
                 <table class="w-100 details-table">
                     <tr>
-                        <td class="text-muted small">Event Date </td><td class="fw-medium">{{ \Carbon\Carbon::parse($event?->date)->format('M d, Y, h:i A') }}</td>
+                        <td class="text-muted small">Attendee </td><td class="fw-medium">{{ $ticket->forename ?? '' }} {{ $ticket->last_name ?? '' }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted small">Quantity</td><td>{{ $ticket->quantity }}</td>
